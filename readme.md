@@ -127,12 +127,6 @@ php artisan config:cache
 
 ## Composer 已安装插件:
 
-## Composer插件推荐:
-```
-将所有配置文件 publish 出来
-php artisan vendor:publish
-```
-
 ###### 安装 Laravel-ide-helper
 ```
 composer require barryvdh/laravel-ide-helper
@@ -144,6 +138,12 @@ _ide_helper_models.php
 
 以下命令生成代码对应文档：
 php artisan ide-helper:generate
+```
+
+## Composer插件推荐:
+```
+将所有配置文件 publish 出来
+php artisan vendor:publish
 ```
 ###### 安装 Debugbar
 ```

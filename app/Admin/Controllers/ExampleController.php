@@ -15,7 +15,6 @@ class ExampleController extends Controller
 
     /**
      * Index interface.
-     *
      * @param Content $content
      * @return Content
      */
@@ -29,8 +28,7 @@ class ExampleController extends Controller
 
     /**
      * Show interface.
-     *
-     * @param mixed   $id
+     * @param mixed $id
      * @param Content $content
      * @return Content
      */
@@ -44,8 +42,7 @@ class ExampleController extends Controller
 
     /**
      * Edit interface.
-     *
-     * @param mixed   $id
+     * @param mixed $id
      * @param Content $content
      * @return Content
      */
@@ -59,7 +56,6 @@ class ExampleController extends Controller
 
     /**
      * Create interface.
-     *
      * @param Content $content
      * @return Content
      */
@@ -73,12 +69,32 @@ class ExampleController extends Controller
 
     /**
      * Make a grid builder.
-     *
      * @return Grid
      */
     protected function grid()
     {
         $grid = new Grid(new YourModel);
+
+        /*禁用*/
+//        $grid->disableActions();
+//        $grid->disableRowSelector();
+//        $grid->disableExport();
+//        $grid->disableFilter();
+//        $grid->disableCreateButton();
+//        $grid->disablePagination();
+
+        $grid->actions(function ($actions) {
+//                $actions->disableView();
+//                $actions->disableEdit();
+//                $actions->disableDelete();
+        });
+
+//        $grid->tools(function ($tools) {
+//            $tools->batch(function ($batch) {
+//                $batch->disableDelete();
+//            });
+//        });
+
 
         $grid->id('ID')->sortable();
         $grid->created_at('Created at');
@@ -89,13 +105,18 @@ class ExampleController extends Controller
 
     /**
      * Make a show builder.
-     *
-     * @param mixed   $id
+     * @param mixed $id
      * @return Show
      */
     protected function detail($id)
     {
         $show = new Show(YourModel::findOrFail($id));
+
+        $show->panel()->tools(function ($tools) {
+//                $tools->disableEdit();
+//                $tools->disableList();
+//                $tools->disableDelete();
+        });
 
         $show->id('ID');
         $show->created_at('Created at');
@@ -106,12 +127,17 @@ class ExampleController extends Controller
 
     /**
      * Make a form builder.
-     *
      * @return Form
      */
     protected function form()
     {
         $form = new Form(new YourModel);
+
+        $form->tools(function (Form\Tools $tools) {
+//                $tools->disableDelete();
+//                $tools->disableList();
+//                $tools->disableView();
+        });
 
         $form->display('id', 'ID');
         $form->display('created_at', 'Created At');

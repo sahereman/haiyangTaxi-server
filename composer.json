@@ -9,6 +9,9 @@
         "barryvdh/laravel-ide-helper": "^2.5",
         "encore/laravel-admin": "^1.6",
         "fideloper/proxy": "~3.3",
+        "laravel-admin-ext/log-viewer": "^1.0",
+        "laravel-admin-ext/media-manager": "^1.0",
+        "laravel-admin-ext/wang-editor": "^1.0",
         "laravel/framework": "5.5.*",
         "laravel/horizon": "~1.0",
         "laravel/tinker": "~1.0"

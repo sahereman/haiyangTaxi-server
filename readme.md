@@ -42,6 +42,9 @@ php artisan db:seed --class=ConfigsSeeder
 
 ## 常用 artisan 命令
 ```
+//创建API 控制器
+php artisan make:controller Api/{控制器名称}Controller //控制器名称一般为模型复数名
+
 //创建模型 & 数据填充 & 控制器
 php artisan make:model Models/{模型名称} -mf         //模型 & 工厂
 php artisan make:seeder {模型名称}Seeder             //数据填充名称一般为模型复数名
@@ -168,6 +171,13 @@ composer require dingo/api:2.0.0-alpha2
 php artisan vendor:publish --provider="Dingo\Api\Provider\LaravelServiceProvider"
 ```
 
+###### 安装 easy-sms
+```
+composer require "overtrue/easy-sms"
+教程:https://laravel-china.org/courses/laravel-advance-training-5.5/791/sms-provider
+```
+
+
 ## Composer插件推荐:
 ```
 将所有配置文件 publish 出来
@@ -257,13 +267,6 @@ resources/views/layouts/app.blade.php
     @if (app()->isLocal())
         @include('sudosu::user-selector')
     @endif
-```
-
-###### 安装 easy-sms
-```
-composer require "overtrue/easy-sms"
-php artisan make:provider EasySmsServiceProvider
-教程:https://laravel-china.org/courses/laravel-advance-training-5.5/791/sms-provider
 ```
 
 ###### 安装 gregwar/captcha 用于接口的图片验证码

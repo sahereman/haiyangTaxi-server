@@ -19,6 +19,7 @@ class UsersSeeder extends Seeder
         $user = \App\Models\User::find(1);
         $user->name = 'Miracle';
         $user->email = '120007700@qq.com';
+        $user->phone = '18600982820';
         $user->password = bcrypt('123456');
         $user->save();
     }

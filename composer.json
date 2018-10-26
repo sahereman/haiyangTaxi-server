@@ -7,6 +7,7 @@
     "require": {
         "php": ">=7.0.0",
         "barryvdh/laravel-ide-helper": "^2.5",
+        "dingo/api": "2.0.0-alpha2",
         "encore/laravel-admin": "^1.6",
         "fideloper/proxy": "~3.3",
         "laravel-admin-ext/log-viewer": "^1.0",
@@ -59,5 +60,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
-    }
+    },
+    "minimum-stability" : "dev",
+    "prefer-stable" : true
 }

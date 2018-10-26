@@ -153,6 +153,21 @@ php artisan horizon
 安装了 Horizon 以后，我们将使用 horizon 命令来启动队列系统和任务监控，无需使用 queue:listen。
 ```
 
+###### 安装 DingoAPI
+```
+"config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability" : "dev", //增加
+    "prefer-stable" : true //增加
+
+composer require dingo/api:2.0.0-alpha2
+
+php artisan vendor:publish --provider="Dingo\Api\Provider\LaravelServiceProvider"
+```
+
 ## Composer插件推荐:
 ```
 将所有配置文件 publish 出来
@@ -167,14 +182,6 @@ php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
 
 打开 config/debugbar.php，将 enabled 的值设置为：
 'enabled' => env('DEBUGBAR_ENABLED', false),
-```
-###### 安装 DingoAPI
-```
-你必须在你的项目中修改 composer.json 文件并且运行 composer update 命令来加载这个包的最新版本。
-"require": {
-    "dingo/api": "2.0.0-alpha1"
-}
-php artisan vendor:publish --provider="Dingo\Api\Provider\LaravelServiceProvider"
 ```
 
 ###### 导航的 Active 状态

@@ -90,7 +90,7 @@ class AdminTablesSeeder extends Seeder
                 'name' => '系统管理',
                 'slug' => 'auth.management',
                 'http_method' => '',
-                'http_path' => "/auth/roles\r\n/auth/permissions\r\n/auth/menu\r\n/auth/logs\r\n/media*\r\n/logs*\r\n/dashboard",
+                'http_path' => "/auth/roles\r\n/auth/permissions\r\n/auth/menu\r\n/auth/logs\r\n/media*\r\n/logs*\r\n/dashboard\r\n/redis\r\n/horizon",
             ],
             [
                 'name' => '系统设置',
@@ -125,7 +125,7 @@ class AdminTablesSeeder extends Seeder
                 'parent_id' => 2,
                 'order' => 2,
                 'title' => '系统信息',
-                'icon' => 'fa-file-text',
+                'icon' => 'fa-dashboard',
                 'uri' => 'dashboard',
             ],
             [
@@ -178,11 +178,25 @@ class AdminTablesSeeder extends Seeder
                 'uri' => 'auth/logs',
             ],
             [
+                'parent_id' => 2,
+                'order' => 9,
+                'title' => 'Horizon',
+                'icon' => 'fa-desktop',
+                'uri' => 'horizon',
+            ],
+            [
+                'parent_id' => 2,
+                'order' => 10,
+                'title' => 'Redis',
+                'icon' => 'fa-database',
+                'uri' => 'redis',
+            ],
+            [
                 'parent_id' => 0,
                 'order' => 998,
                 'title' => '系统设置',
                 'icon' => 'fa-gear',
-                'uri' => '/configs',
+                'uri' => 'configs',
             ],
         ];
         $menus = array_merge($menus, $this->custom_menus);

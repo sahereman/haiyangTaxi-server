@@ -42,6 +42,9 @@ class PasswordResetController extends Controller
         // 缓存重置凭证 10分钟过期。
         \Cache::put($key, ['auth' => $user], $expiredAt);
 
+        // 清除验证码缓存
+        \Cache::forget($request->verification_key);
+
         return $this->response->array([
             'key' => $key,
             'expired_at' => $expiredAt->toDateTimeString(),

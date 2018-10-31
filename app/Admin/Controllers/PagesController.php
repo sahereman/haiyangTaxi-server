@@ -40,4 +40,12 @@ class PagesController extends Controller
                 });
             });
     }
+
+    public function horizon(Content $content)
+    {
+        return $content
+            ->header('Horizon')
+            ->description('Horizon')
+            ->body('<iframe src="/horizon" width="100%" height="600px"></iframe>');
+    }
 }

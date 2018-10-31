@@ -12,6 +12,7 @@ Route::group([
     $router->get('/', 'PagesController@index')->name('admin.root');/*首页 - 数据统计*/
     $router->post('wang_editor/images', 'WangEditorController@images')->name('admin.wang_editor.images');/*WangEditor上传图片*/
     $router->get('dashboard', 'PagesController@dashboard')->name('admin.dashboard');/*系统信息*/
+    $router->get('horizon', 'PagesController@horizon')->name('admin.horizon');/*Horizon*/
 
     /*系统设置*/
     $router->get('configs', 'ConfigsController@index')->name('admin.configs.index');/*详情*/

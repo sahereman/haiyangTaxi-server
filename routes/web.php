@@ -11,6 +11,10 @@
 |
 */
 
+Horizon::auth(function ($request) {
+    return Auth::guard('admin')->check();
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

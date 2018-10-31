@@ -47,7 +47,7 @@ class AuthorizationsController extends Controller
         return $this->response->array([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 600 // 600分钟 有效
+            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60 // 60分钟 有效
         ]);
     }
 

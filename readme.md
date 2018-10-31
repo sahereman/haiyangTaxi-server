@@ -202,6 +202,16 @@ JWT_TTL= //生成的 token 在多少分钟后过期，默认 60 分钟
 JWT_REFRESH_TTL= //生成的 token，在多少分钟内，可以刷新获取一个新 token，默认 20160 分钟，14天。
 ```
 
+###### API返回数据序列化 
+```
+composer require liyu/dingo-serializer-switch
+
+$api->version('v1', [
+    'namespace' => 'App\Http\Controllers\Api',
+    'middleware' => ['serializer:array', 'bindings']
+], function ($api) {
+}
+```
 
 ## Composer插件推荐:
 ```
@@ -299,17 +309,6 @@ resources/views/layouts/app.blade.php
 composer require gregwar/captcha
 ```
 
-
-###### API返回数据序列化 
-```
-composer require liyu/dingo-serializer-switch
-
-$api->version('v1', [
-    'namespace' => 'App\Http\Controllers\Api',
-    'middleware' => ['serializer:array', 'bindings']
-], function ($api) {
-}
-```
 ###### 数据库查询日志
 ```
 composer require overtrue/laravel-query-logger --dev

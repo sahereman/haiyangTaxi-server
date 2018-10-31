@@ -79,8 +79,9 @@ class UsersController extends Controller
 
         $grid->id('ID')->sortable();
         $grid->avatar('头像')->image('', 40);
-        $grid->email('邮箱');
         $grid->name('用户名');
+        $grid->phone('手机号');
+        $grid->email('邮箱');
         $grid->created_at('创建时间')->sortable();
 
         // 不在页面显示 `新建` 按钮，因为我们不需要在后台新建用户
@@ -116,7 +117,10 @@ class UsersController extends Controller
 
         $form->display('id', 'ID');
         $form->image('avatar', '头像')->uniqueName()->move('avatar/' . date('Ym', now()->timestamp))->rules('required|image');
-        $form->editor('name', '用户名');
+//        $form->editor('name', '用户名');
+        $form->text('name', '用户名');
+        $form->text('phone', '手机号');
+        $form->text('email', '邮箱');
         $form->display('created_at', '创建时间');
         $form->display('updated_at', '更新时间');
 
@@ -140,8 +144,9 @@ class UsersController extends Controller
         $show->id('ID');
         $show->divider();
         $show->avatar('头像')->image('', 120);
-        $show->email('邮箱');
         $show->name('用户名')->unescape();
+        $show->phone('手机号');
+        $show->email('邮箱');
         $show->created_at('创建时间');
         $show->updated_at('更新时间');
 

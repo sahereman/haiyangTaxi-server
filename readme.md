@@ -15,6 +15,7 @@ crontab -u root -l   查看
 //配置 env
 cp .env.example .env
 php artisan key:generate
+php artisan jwt:secret //更换这个secret 会导致之前生成的所有 token 无效。
 
 //静态资源软链接
 sudo php artisan storage:link
@@ -44,6 +45,11 @@ php artisan db:seed --class=ConfigsSeeder
 ```
 //创建API 控制器
 php artisan make:controller Api/{控制器名称}Controller //控制器名称一般为模型复数名
+
+php artisan make:request Api/{验证器名称}Request
+
+php artisan jwt:secret //更换这个secret 会导致之前生成的所有 token 无效。
+
 
 //创建模型 & 数据填充 & 控制器
 php artisan make:model Models/{模型名称} -mf         //模型 & 工厂
@@ -177,6 +183,25 @@ composer require "overtrue/easy-sms"
 教程:https://laravel-china.org/courses/laravel-advance-training-5.5/791/sms-provider
 ```
 
+###### 安装 Request 验证器 中文语言包
+```
+composer require overtrue/laravel-lang
+然后修改系统语言，将原本的值 en 改成 zh-CN：
+config/app.php
+'locale' => 'zh-CN',
+```
+
+###### 安装 jwt-auth 
+```
+composer require tymon/jwt-auth:1.0.0-rc.2
+php artisan jwt:secret
+//配置 https://laravel-china.org/courses/laravel-advance-training-5.5/793/mobile-login-api
+
+JWT_SECRET= //换这个secret 会导致之前生成的所有 token 无效。
+JWT_TTL= //生成的 token 在多少分钟后过期，默认 60 分钟
+JWT_REFRESH_TTL= //生成的 token，在多少分钟内，可以刷新获取一个新 token，默认 20160 分钟，14天。
+```
+
 
 ## Composer插件推荐:
 ```
@@ -274,16 +299,7 @@ resources/views/layouts/app.blade.php
 composer require gregwar/captcha
 ```
 
-###### 安装 jwt-auth 
-```
-composer require tymon/jwt-auth:1.0.0-rc.2
-php artisan jwt:secret
-//配置 https://laravel-china.org/courses/laravel-advance-training-5.5/793/mobile-login-api
 
-JWT_SECRET= //换这个secret 会导致之前生成的所有 token 无效。
-JWT_TTL= //生成的 token 在多少分钟后过期，默认 60 分钟
-JWT_REFRESH_TTL= //生成的 token，在多少分钟内，可以刷新获取一个新 token，默认 20160 分钟，14天。
-```
 ###### API返回数据序列化 
 ```
 composer require liyu/dingo-serializer-switch

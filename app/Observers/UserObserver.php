@@ -2,10 +2,9 @@
 
 namespace App\Observers;
 
-use App\Models\Config;
-use Illuminate\Support\Facades\Cache;
+use App\Models\User;
 
-class ConfigObserver
+class UserObserver
 {
     /*Eloquent 的模型触发了几个事件，可以在模型的生命周期的以下几点进行监控：
     retrieved、creating、created、updating、updated、saving、saved、deleting、deleted、restoring、restored
@@ -16,20 +15,12 @@ class ConfigObserver
     当模型不存在，需要新增的时候，依次触发的顺序则是:
     saving -> creating -> created -> saved(不会触发保存操作)*/
 
-
-    public function created(Config $config)
+    public function creating(User $user)
     {
-        Cache::forget($config::$cache_key);
+        // 这样写扩展性更高，只有空的时候才指定默认头像
+        if (empty($user->avatar))
+        {
+            $user->avatar = asset('defaults/default_avatar.jpeg');
+        }
     }
-
-    public function saved(Config $config)
-    {
-        Cache::forget($config::$cache_key);
-    }
-
-    public function deleted(Config $config)
-    {
-        Cache::forget($config::$cache_key);
-    }
-
 }

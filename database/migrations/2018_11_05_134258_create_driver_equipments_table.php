@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateDriverEquipmentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,15 +12,14 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('driver_equipments', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('phone')->unique()->comment('手机号');
-            $table->string('avatar')->nullable()->comment('头像');
+            $table->unsignedInteger('driver_id');
+            $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');
 
+            $table->string('imei')->unique()->comment('设备IMEI');
 
-
-            $table->timestamp('last_active_at')->nullable()->comment('最后活跃时间');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('driver_equipments');
     }
 }

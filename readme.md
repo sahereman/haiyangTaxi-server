@@ -7,11 +7,6 @@ Composer | Git客户端 | crond服务 | Supervisor进程管理工具
 //安装
 composer install
 
-//crond服务
-crontab -e 添加
-* * * * * php /{项目绝对路径根目录}/artisan schedule:run >> /dev/null 2>&1    保存
-crontab -u root -l   查看
-
 //配置 env
 cp .env.example .env
 php artisan key:generate
@@ -40,6 +35,7 @@ php artisan db:seed --class=ConfigsSeeder
 ```
 ##### 服务器后台运行的服务: 生产环境进程管理工具 Supervisor 
 - `php artisan horizon`
+- `./vendor/bin/fswatch ./app >> /dev/null 2>&1`
 
 ## 常用 artisan 命令
 ```

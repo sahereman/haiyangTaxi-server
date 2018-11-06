@@ -21,7 +21,7 @@ $api->version('v1', [
     /*短信接口调用频率 1分钟 2次*/
     $api->group([
         'middleware' => 'api.throttle',
-        'limit' => 2,
+        'limit' => 20,
         'expires' => 1,
     ], function ($api) {
         // 短信

@@ -15,8 +15,6 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\User::class, function (Faker $faker) {
 
-    static $password;
-
     // 现在时间
     $now = \Carbon\Carbon::now()->toDateTimeString();
 
@@ -26,11 +24,7 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
     $created_at = $faker->dateTimeThisMonth($updated_at);
 
     return [
-        'name' => $faker->name,
-        'email' => $faker->safeEmail,
         'phone' => $faker->phoneNumber,
-        'password' => $password ?: $password = bcrypt('123456'),
-        'remember_token' => str_random(10),
         'avatar' => $faker->imageUrl(),
         'created_at' => $created_at,
         'updated_at' => $updated_at,

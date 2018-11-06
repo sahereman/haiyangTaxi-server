@@ -59,13 +59,16 @@ class PasswordResetController extends Controller
         if (!$reset_data)
         {
             throw new StoreResourceFailedException(null, [
-                'verification_key' => '验证码已失效'
+                'reset_key' => '重置密码凭证已失效'
             ]);
         }
 
         $user = User::find($reset_data['auth']->id);
         $user->password = bcrypt($request->password);
         $user->save();
+
+        // 清除reset key缓存
+        \Cache::forget($request->reset_key);
 
         return $this->response->noContent();
     }

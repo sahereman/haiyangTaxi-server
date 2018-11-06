@@ -11,6 +11,9 @@ class Controller extends BaseController
 
     public function test()
     {
-        return 'test';
+//        $swoole = app('swoole');
+//        dd($swoole->stats());
+
+        return '111';
     }
 }

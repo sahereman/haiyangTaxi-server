@@ -21,20 +21,11 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    /**
-     * The attributes that are mass assignable.
-     * @var array
-     */
     protected $fillable = [
-        'name', 'avatar', 'phone', 'email', 'password',
+        'avatar', 'phone',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     * @var array
-     */
     protected $hidden = [
-        'password', 'remember_token',
     ];
 
     protected $appends = ['avatar_url'];

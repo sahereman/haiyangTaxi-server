@@ -25,6 +25,12 @@ Route::group([
     $router->put('users/{id}', 'UsersController@update')->name('admin.users.update');
     $router->delete('users/{id}', 'UsersController@destroy')->name('admin.users.destroy');
 
+    /*司机*/
+    $router->resource('drivers', DriversController::class)->names('admin.drivers');
+
+    /*文章*/
+    $router->resource('articles', ArticlesController::class)->names('admin.articles');
+
     //    $router->resource('example', ExampleController::class)->names('admin.example');
     //    $router->get('example', 'ExampleController@index')->name('admin.example.index');
     //    $router->get('example/create', 'ExampleController@create')->name('admin.example.create');

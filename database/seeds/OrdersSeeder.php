@@ -52,5 +52,12 @@ class OrdersSeeder extends Seeder
 
         });
 
+
+        //司机订单总数
+        Driver::all()->each(function (Driver $driver) {
+            $driver->order_count = $driver->orders()->count();
+            $driver->save();
+        });
+
     }
 }

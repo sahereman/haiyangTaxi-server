@@ -18,7 +18,7 @@ class CreateArticlesTable extends Migration
 
             $table->string('name')->comment('名称');
             $table->string('slug')->comment('调用使用时的标示位');
-            $table->string('content')->nullable()->comment('内容 HTML');
+            $table->text('content')->nullable()->comment('内容 HTML');
 
             $table->timestamps();
         });

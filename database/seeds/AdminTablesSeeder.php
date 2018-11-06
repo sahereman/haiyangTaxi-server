@@ -21,6 +21,18 @@ class AdminTablesSeeder extends Seeder
                 'http_method' => '',
                 'http_path' => "/users",
             ],
+            [
+                'name' => '司机管理',
+                'slug' => 'drivers',
+                'http_method' => '',
+                'http_path' => "/drivers",
+            ],
+            [
+                'name' => '文章管理',
+                'slug' => 'articles',
+                'http_method' => '',
+                'http_path' => "/articles",
+            ],
         ];
 
     /*自定义添加的菜单*/
@@ -32,6 +44,20 @@ class AdminTablesSeeder extends Seeder
                 'title' => '用户管理',
                 'icon' => 'fa-list',
                 'uri' => '/users',
+            ],
+            [
+                'parent_id' => 0,
+                'order' => 2,
+                'title' => '司机管理',
+                'icon' => 'fa-list',
+                'uri' => '/drivers',
+            ],
+            [
+                'parent_id' => 0,
+                'order' => 5,
+                'title' => '文章管理',
+                'icon' => 'fa-list',
+                'uri' => 'articles',
             ],
         ];
 
@@ -204,5 +230,7 @@ class AdminTablesSeeder extends Seeder
 
         // add role to menu.
         Menu::find(2)->roles()->save(Role::first());
+        Menu::find(15)->roles()->save(Role::first());/*文章管理*/
+
     }
 }

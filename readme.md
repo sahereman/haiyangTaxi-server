@@ -87,6 +87,11 @@ composer dumpautoload
 php artisan config:clear
 
 php artisan config:cache
+
+//数据库查询语句
+DB::connection()->enableQueryLog();
+info(DB::getQueryLog());
+
 ```
 
 ## API接口 设计规范
@@ -209,20 +214,11 @@ $api->version('v1', [
 }
 ```
 
+
 ## Composer插件推荐:
 ```
 将所有配置文件 publish 出来
 php artisan vendor:publish
-```
-###### 安装 Debugbar
-```
-composer require "barryvdh/laravel-debugbar:~3.1" --dev
-
-生成配置文件，存放位置 config/debugbar.php：
-php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
-
-打开 config/debugbar.php，将 enabled 的值设置为：
-'enabled' => env('DEBUGBAR_ENABLED', false),
 ```
 
 ###### 导航的 Active 状态

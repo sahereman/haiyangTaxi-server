@@ -13,6 +13,9 @@ $factory->define(App\Models\Driver::class, function (Faker $faker) {
 
     return [
         'cart_number' => '鲁B' . $faker->randomNumber(5, true),
+        'last_active_at' => $created_at,
+        'name' => $faker->name,
+        'phone' => $faker->phoneNumber,
         'created_at' => $created_at,
         'updated_at' => $updated_at,
     ];

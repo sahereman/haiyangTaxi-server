@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Client;
 
-use App\Http\Requests\Api\SmsVerificationRequest;
+use App\Http\Requests\Client\SmsVerificationRequest;
 use Illuminate\Support\Facades\Log;
 use Overtrue\EasySms\EasySms;
 

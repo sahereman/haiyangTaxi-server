@@ -91,6 +91,8 @@ class ConfigsController extends Controller
             {
                 if ($request->hasFile($key))
                 {
+                    info($configs->where('code', $key)->first());
+
                     $value = $imageUploadHandler->uploadOriginal($request->file($key));
                 }
                 $config = Config::where('code', $key)->first();

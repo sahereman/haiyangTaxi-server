@@ -7,11 +7,6 @@ Composer | Git客户端 | crond服务 | Supervisor进程管理工具
 //安装
 composer install
 
-//crond服务
-crontab -e 添加
-* * * * * php /{项目绝对路径根目录}/artisan schedule:run >> /dev/null 2>&1    保存
-crontab -u root -l   查看
-
 //配置 env
 cp .env.example .env
 php artisan key:generate
@@ -40,6 +35,7 @@ php artisan db:seed --class=ConfigsSeeder
 ```
 ##### 服务器后台运行的服务: 生产环境进程管理工具 Supervisor 
 - `php artisan horizon`
+- `./vendor/bin/fswatch ./app >> /dev/null 2>&1`
 
 ## 常用 artisan 命令
 ```
@@ -91,6 +87,11 @@ composer dumpautoload
 php artisan config:clear
 
 php artisan config:cache
+
+//数据库查询语句
+DB::connection()->enableQueryLog();
+info(DB::getQueryLog());
+
 ```
 
 ## API接口 设计规范
@@ -213,20 +214,11 @@ $api->version('v1', [
 }
 ```
 
+
 ## Composer插件推荐:
 ```
 将所有配置文件 publish 出来
 php artisan vendor:publish
-```
-###### 安装 Debugbar
-```
-composer require "barryvdh/laravel-debugbar:~3.1" --dev
-
-生成配置文件，存放位置 config/debugbar.php：
-php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
-
-打开 config/debugbar.php，将 enabled 的值设置为：
-'enabled' => env('DEBUGBAR_ENABLED', false),
 ```
 
 ###### 导航的 Active 状态

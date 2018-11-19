@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Client;
 
-use App\Http\Requests\Api\PasswordResetBySmsRequest;
-use App\Http\Requests\Api\PasswordResetRequest;
+use App\Http\Requests\Client\PasswordResetBySmsRequest;
+use App\Http\Requests\Client\PasswordResetRequest;
 use App\Models\User;
 use Dingo\Api\Exception\StoreResourceFailedException;
+use Illuminate\Support\Facades\Cache;
 
 class PasswordResetController extends Controller
 {
     public function resetBySms(PasswordResetBySmsRequest $request)
     {
-        $verify_data = \Cache::get($request->verification_key);
+        $verify_data = Cache::get($request->verification_key);
 
         if (!$verify_data)
         {
@@ -40,10 +41,10 @@ class PasswordResetController extends Controller
         $expiredAt = now()->addMinutes(10);
 
         // 缓存重置凭证 10分钟过期。
-        \Cache::put($key, ['auth' => $user], $expiredAt);
+        Cache::put($key, ['auth' => $user], $expiredAt);
 
         // 清除验证码缓存
-        \Cache::forget($request->verification_key);
+        Cache::forget($request->verification_key);
 
         return $this->response->array([
             'key' => $key,
@@ -54,18 +55,21 @@ class PasswordResetController extends Controller
 
     public function reset(PasswordResetRequest $request)
     {
-        $reset_data = \Cache::get($request->reset_key);
+        $reset_data = Cache::get($request->reset_key);
 
         if (!$reset_data)
         {
             throw new StoreResourceFailedException(null, [
-                'verification_key' => '验证码已失效'
+                'reset_key' => '重置密码凭证已失效'
             ]);
         }
 
         $user = User::find($reset_data['auth']->id);
         $user->password = bcrypt($request->password);
         $user->save();
+
+        // 清除reset key缓存
+        Cache::forget($request->reset_key);
 
         return $this->response->noContent();
     }

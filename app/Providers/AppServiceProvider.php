@@ -40,5 +40,10 @@ class AppServiceProvider extends ServiceProvider
         API::error(function (\Illuminate\Auth\Access\AuthorizationException $exception) {
             abort(403, $exception->getMessage());
         });
+
+        //Token无效异常返回正确的状态码
+        API::error(function (\Tymon\JWTAuth\Exceptions\TokenInvalidException $exception) {
+            abort(401, $exception->getMessage());
+        });
     }
 }

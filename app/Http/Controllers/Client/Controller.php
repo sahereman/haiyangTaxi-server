@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Client;
 
 use Dingo\Api\Routing\Helpers;
 use App\Http\Controllers\Controller as BaseController;
@@ -11,6 +11,9 @@ class Controller extends BaseController
 
     public function test()
     {
-        return 'test';
+//        $swoole = app('swoole');
+//        dd($swoole->stats());
+
+        return '111';
     }
 }

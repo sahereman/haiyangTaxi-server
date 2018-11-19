@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Client;
 
 
 use App\Handlers\ImageUploadHandler;
-use App\Http\Requests\Api\UserRequest;
+use App\Http\Requests\Client\UserRequest;
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use Dingo\Api\Exception\StoreResourceFailedException;

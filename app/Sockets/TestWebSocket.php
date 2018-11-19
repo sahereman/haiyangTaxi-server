@@ -14,6 +14,12 @@ class TestWebSocket extends WebSocket
         $server->push($request->fd, 'Welcome to WebSocket.');
     }
 
+    public function onClose(\swoole_websocket_server $server, $fd, $reactorId)
+    {
+        info('Close WebSocke connection', [$fd]);
+        $server->push($fd, 'Goodbye');
+    }
+    
     public function onMessage(\swoole_websocket_server $server, \swoole_websocket_frame $frame)
     {
 
@@ -34,12 +40,6 @@ class TestWebSocket extends WebSocket
         //            $server->send($fd, 'LaravelS: bye' . PHP_EOL);
         //            $server->close($fd);
         //        }
-    }
-
-    public function onClose(\swoole_websocket_server $server, $fd, $reactorId)
-    {
-        info('Close WebSocke connection', [$fd]);
-        $server->push($fd, 'Goodbye');
     }
 
     //    public function onConnect(\swoole_server $server, $fd, $reactorId)

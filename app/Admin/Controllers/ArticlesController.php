@@ -81,7 +81,7 @@ class ArticlesController extends Controller
 
         $grid->id('ID');
         $grid->name('名称');
-        $grid->slug('标示位');
+        $grid->slug('标示');
         $grid->created_at('创建时间');
         $grid->updated_at('更新时间');
 
@@ -99,7 +99,9 @@ class ArticlesController extends Controller
 
         $show->id('ID');
         $show->name('名称');
-        $show->slug('标示位');
+        $show->slug('标示')->as(function ($slug) {
+            return "$slug - " . Article::$slugMap[$slug];
+        });
         $show->content('内容')->unescape();
         $show->created_at('创建时间');
         $show->updated_at('更新时间');
@@ -116,10 +118,11 @@ class ArticlesController extends Controller
         $form = new Form(new Article);
 
         $form->text('name', '名称');
-        $form->text('slug', '标示')->rules(function ($form) {
+
+        $form->select('slug', '标示')->options(Article::$slugMap)->rules(function ($form) {
             return ['required', Rule::unique('articles', 'slug')->ignore($form->model()->id),];
-        })->help('可使用的标示 : about | event ');
-        $form->text('slug', '标示位');
+        });
+
         $form->editor('content', '内容');
 
         return $form;

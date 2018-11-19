@@ -19,7 +19,6 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->nullable()->comment('头像');
 
 
-
             $table->timestamp('last_active_at')->nullable()->comment('最后活跃时间');
             $table->timestamps();
         });

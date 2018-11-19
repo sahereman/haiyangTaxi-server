@@ -25,19 +25,9 @@ return [
     ],
     'sockets' => [
         [
-            'host' => '127.0.0.1',
-            'port' => 5291,
-            'type' => SWOOLE_SOCK_TCP,// 支持的嵌套字类型：https://wiki.swoole.com/wiki/page/16.html#entry_h2_0
-            'settings' => [// Swoole可用的配置项：https://wiki.swoole.com/wiki/page/526.html
-                'open_eof_check' => true,
-                'package_eof' => "\r\n",
-            ],
-            'handler' => \App\Sockets\TestTcpSocket::class,
-        ],
-        [
             'host' => '0.0.0.0',
-            'port' => 5294,
-            'type' => SWOOLE_SOCK_TCP,
+            'port' => 5301,
+            'type' => \SWOOLE_SOCK_TCP,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,

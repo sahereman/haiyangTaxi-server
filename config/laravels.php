@@ -36,13 +36,16 @@ return [
         ],
     ],
     'processes' => [
+        //        \App\Processes\TestProcess::class,
     ],
     'timer' => [
-        'enable' => false,
-        'jobs' => [
-            // Enable LaravelScheduleJob to run `php artisan schedule:run` every 1 minute, replace Linux Crontab
-            //\Hhxsv5\LaravelS\Illuminate\LaravelScheduleJob::class,
-            //XxxCronJob::class,
+        'enable' => true, // 启用Timer
+        'jobs' => [ // 注册的定时任务类列表
+            // 启用LaravelScheduleJob来执行`php artisan schedule:run`，每分钟一次，替代Linux Crontab
+            // \Hhxsv5\LaravelS\Illuminate\LaravelScheduleJob::class,
+            // 两种配置参数的方式：
+            // [\App\Jobs\Timer\TestCronJob::class, [1000, true]], // 注册时传入参数
+            //            \App\Jobs\Timers\TestCronJob::class, // 重载对应的方法来返回参数
         ],
     ],
     'events' => [
@@ -50,9 +53,18 @@ return [
     'swoole_tables' => [
         // 场景：WebSocket中UserId与FD绑定
         'ws' => [// Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
-            'size' => 102400,//Table的最大行数
+            'size'   => 102400,//Table的最大行数
             'column' => [// Table的列定义
                 ['name' => 'value', 'type' => \swoole_table::TYPE_INT, 'size' => 8],
+            ],
+        ],
+
+        'xxs' => [// Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
+            'size' => 10240,//Table的最大行数 102400
+            'column' => [// Table的列定义
+                ['name' => 'id', 'type' => \swoole_table::TYPE_INT, 'size' => 8],
+                ['name' => 'name', 'type' => \swoole_table::TYPE_STRING, 'size' => 255],
+                ['name' => 'price', 'type' => \swoole_table::TYPE_FLOAT, 'size' => 8],
             ],
         ],
         //...继续定义其他Table
@@ -64,7 +76,7 @@ return [
         'dispatch_mode' => 2,
         'reactor_num' => function_exists('\swoole_cpu_num') ? \swoole_cpu_num() * 2 : 4,
         'worker_num' => function_exists('\swoole_cpu_num') ? \swoole_cpu_num() * 2 : 8,
-        //'task_worker_num'   => function_exists('\swoole_cpu_num') ? \swoole_cpu_num() * 2 : 8,
+        'task_worker_num' => function_exists('\swoole_cpu_num') ? \swoole_cpu_num() * 2 : 8,
         'task_ipc_mode' => 1,
         'task_max_request' => 5000,
         'task_tmpdir' => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',

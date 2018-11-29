@@ -99,9 +99,7 @@ class ArticlesController extends Controller
 
         $show->id('ID');
         $show->name('名称');
-        $show->slug('标示')->as(function ($slug) {
-            return "$slug - " . Article::$slugMap[$slug];
-        });
+        $show->slug('标示');
         $show->content('内容')->unescape();
         $show->created_at('创建时间');
         $show->updated_at('更新时间');

@@ -8,6 +8,8 @@ use Overtrue\EasySms\EasySms;
 
 class SmsController extends Controller
 {
+    public $verification_templet_code = 'SMS_151996714';
+
     /**
      * @param SmsVerificationRequest $request
      * @param EasySms $easySms
@@ -28,11 +30,15 @@ class SmsController extends Controller
             try
             {
                 $result = $easySms->send($phone, [
-                    'content' => "【Dima商城】您的验证码是{$code}。如非本人操作，请忽略本短信"
+                    'content' => "您的验证码为：{$code}，该验证码 5 分钟内有效，请勿泄漏于他人。",
+                    'template' => $this->verification_templet_code,
+                    'data' => [
+                        'code' => $code
+                    ],
                 ]);
             } catch (\Exception $exception)
             {
-                Log::error($exception->getException('yunpian'));
+                Log::error($exception->getException('aliyun'));
                 return $this->response->errorInternal('短信发送异常');
             }
         }

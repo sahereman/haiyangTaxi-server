@@ -22,10 +22,17 @@ class User extends Authenticatable implements JWTSubject
     }
 
     protected $fillable = [
-        'avatar', 'phone',
+        'avatar', 'phone', 'last_active_at'
     ];
 
     protected $hidden = [
+    ];
+
+    protected $casts = [
+    ];
+
+    protected $dates = [
+        'last_active_at'
     ];
 
     protected $appends = ['avatar_url'];

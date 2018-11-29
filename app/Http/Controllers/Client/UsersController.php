@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Client;
 use App\Handlers\ImageUploadHandler;
 use App\Http\Requests\Client\UserRequest;
 use App\Models\User;
-use App\Transformers\UserTransformer;
+use App\Transformers\Client\UserTransformer;
 use Dingo\Api\Exception\StoreResourceFailedException;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,21 +39,17 @@ class UsersController extends Controller
 
 
         $user = User::create([
-            'name' => $request->name,
             'phone' => $verify_data['phone'],
-            'password' => bcrypt($request->password),
+            'last_active_at' => now(),
         ]);
 
         // 清除验证码缓存
         \Cache::forget($request->verification_key);
 
-        return $this->response->item($user, new UserTransformer())
-            ->setMeta([
-                'access_token' => Auth::guard('api')->fromUser($user),
-                'token_type' => 'Bearer',
-                'expires_in' => Auth::guard('api')->factory()->getTTL() * 60
-            ])
-            ->setStatusCode(201);
+        $authorizations = new AuthorizationsController();
+
+        return $authorizations->respondWithToken(Auth::guard('client')->fromUser($user))->setStatusCode(201);
+
     }
 
     public function me()

@@ -51,6 +51,9 @@ $api->version('v1', [
         $api->post('password/reset/sms', 'PasswordResetController@resetBySms')->name('client.password.reset.sms');/*找回密码(短信)*/
         $api->patch('password/reset', 'PasswordResetController@reset')->name('client.password.reset');/*重置密码*/
 
+        // 文章展示
+        $api->get('articles/{slug}', 'ArticlesController@show')->name('client.articles.show');/*详情*/
+
 
         /*需要 token 验证的接口*/
         $api->group(['middleware' => 'api.auth'], function ($api) {

@@ -9,6 +9,7 @@ use Encore\Admin\Widgets\Form;
 use Encore\Admin\Widgets\Tab;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class ConfigsController extends Controller
 {

@@ -11,15 +11,13 @@ class UserRequest extends Request
 
     public function rules()
     {
-        if ($this->routeIs('api.users.store'))
+        if ($this->routeIs('client.users.store'))
         {
             return [
-                'name' => 'required|string|max:255',
-                'password' => 'required|string|min:6',
                 'verification_key' => 'required|string',
                 'verification_code' => 'required|string',
             ];
-        } elseif ($this->routeIs('api.users.update'))
+        } elseif ($this->routeIs('client.users.update'))
         {
             return [
                 'name' => [

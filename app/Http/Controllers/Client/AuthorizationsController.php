@@ -26,7 +26,7 @@ class AuthorizationsController extends Controller
         if (!hash_equals($verify_data['code'], $request->verification_code))
         {
             throw new StoreResourceFailedException(null, [
-                'verification_c200ode' => '验证码错误'
+                'verification_code' => '验证码错误'
             ]);
         }
 
@@ -34,8 +34,14 @@ class AuthorizationsController extends Controller
 
         if (!$user)
         {
-            throw new StoreResourceFailedException(null, [
-                'phone' => '该手机未注册'
+            $user = User::create([
+                'phone' => $verify_data['phone'],
+                'last_active_at' => now(),
+            ]);
+        } else
+        {
+            $user->update([
+                'last_active_at' => now(),
             ]);
         }
 
@@ -49,7 +55,17 @@ class AuthorizationsController extends Controller
 
     public function update()
     {
+        if (Auth::guard('client')->check())
+        {
+            $user = Auth::guard('client')->user();
+        }
+
         $token = Auth::guard('client')->refresh();
+
+        User::find($user->id)->update([
+            'last_active_at' => now(),
+        ]);
+
         return $this->respondWithToken($token);
     }
 
@@ -59,7 +75,7 @@ class AuthorizationsController extends Controller
         return $this->response->noContent();
     }
 
-    protected function respondWithToken($token)
+    public function respondWithToken($token)
     {
         return $this->response->array([
             'access_token' => $token,

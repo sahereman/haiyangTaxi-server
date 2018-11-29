@@ -31,7 +31,8 @@ class Order extends Model
     ];
 
     protected $fillable = [
-        'order_sn', 'status',
+        'order_sn', 'status', 'from_address', 'from_location', 'to_address', 'to_location', 'close_from',
+        'close_reason', 'closed_at', 'completed_at'
 
     ];
 

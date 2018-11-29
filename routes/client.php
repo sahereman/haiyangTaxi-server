@@ -47,10 +47,6 @@ $api->version('v1', [
         $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/
         $api->delete('authorizations', 'AuthorizationsController@destroy')->name('client.authorizations.destroy');/*删除授权token*/
 
-        // 找回密码
-        $api->post('password/reset/sms', 'PasswordResetController@resetBySms')->name('client.password.reset.sms');/*找回密码(短信)*/
-        $api->patch('password/reset', 'PasswordResetController@reset')->name('client.password.reset');/*重置密码*/
-
         // 文章展示
         $api->get('articles/{slug}', 'ArticlesController@show')->name('client.articles.show');/*详情*/
 

@@ -61,7 +61,7 @@ class UsersController extends Controller
     {
         $user = $this->user();
 
-        $attributes = $request->only(['name', 'email', 'avatar']);
+        $attributes = $request->only(['avatar']);
 
         if ($request->avatar)
         {

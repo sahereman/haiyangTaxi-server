@@ -33,6 +33,12 @@ class AdminTablesSeeder extends Seeder
                 'http_method' => '',
                 'http_path' => "/articles",
             ],
+            [
+                'name' => '订单管理',
+                'slug' => 'orders',
+                'http_method' => '',
+                'http_path' => "/orders",
+            ],
         ];
 
     /*自定义添加的菜单*/
@@ -58,6 +64,13 @@ class AdminTablesSeeder extends Seeder
                 'title' => '文章管理',
                 'icon' => 'fa-list',
                 'uri' => 'articles',
+            ],
+            [
+                'parent_id' => 0,
+                'order' => 8,
+                'title' => '订单管理',
+                'icon' => 'fa-list',
+                'uri' => 'orders',
             ],
         ];
 

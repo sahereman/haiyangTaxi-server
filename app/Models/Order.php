@@ -84,4 +84,14 @@ class Order extends Model
         Log::error('generating order sn failed');
         return false;
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

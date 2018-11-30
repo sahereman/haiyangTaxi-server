@@ -25,6 +25,11 @@ Route::group([
     $router->put('users/{id}', 'UsersController@update')->name('admin.users.update');
     $router->delete('users/{id}', 'UsersController@destroy')->name('admin.users.destroy');
 
+    /*订单*/
+    $router->get('orders', 'OrdersController@index')->name('admin.orders.index');
+    $router->get('orders/{id}', 'OrdersController@show')->name('admin.orders.show');
+    $router->delete('orders/{id}', 'OrdersController@destroy')->name('admin.orders.destroy');
+
     /*司机*/
     $router->resource('drivers', DriversController::class)->names('admin.drivers');
 

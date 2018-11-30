@@ -47,4 +47,9 @@ class User extends Authenticatable implements JWTSubject
         }
         return \Storage::disk('public')->url($this->attributes['avatar']);
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

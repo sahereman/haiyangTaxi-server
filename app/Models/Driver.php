@@ -14,6 +14,7 @@ class Driver extends Model
     ];
 
     protected $dates = [
+        'last_active_at'
     ];
 
 

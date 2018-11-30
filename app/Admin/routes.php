@@ -36,6 +36,9 @@ Route::group([
     /*文章*/
     $router->resource('articles', ArticlesController::class)->names('admin.articles');
 
+    /*城市热门地点*/
+    $router->resource('city_hot_addresses', CityHotAddressesController::class)->names('admin.city_hot_addresses');
+
     //    $router->resource('example', ExampleController::class)->names('admin.example');
     //    $router->get('example', 'ExampleController@index')->name('admin.example.index');
     //    $router->get('example/create', 'ExampleController@create')->name('admin.example.create');

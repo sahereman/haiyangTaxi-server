@@ -12,16 +12,12 @@ class ArticlesSeeder extends Seeder
      */
     public function run()
     {
-        $slug_arr = [
-            ['关于我们', 'about'],
-            ['礼品活动', 'event'],
-        ];
 
-        foreach ($slug_arr as $item)
+        foreach (Article::$slugMap as $key => $item)
         {
             factory(Article::class)->create([
-                'name' => $item[0],
-                'slug' => $item[1]
+                'name' => $item,
+                'slug' => $key
             ]);
         }
     }

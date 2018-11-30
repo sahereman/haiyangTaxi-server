@@ -30,5 +30,6 @@ class DatabaseSeeder extends Seeder
 
         //其他
         $this->call(ArticlesSeeder::class);
+        $this->call(CityHotAddressesSeeder::class);
     }
 }

@@ -39,6 +39,12 @@ class AdminTablesSeeder extends Seeder
                 'http_method' => '',
                 'http_path' => "/orders",
             ],
+            [
+                'name' => '城市热门地点管理',
+                'slug' => 'city_hot_addresses',
+                'http_method' => '',
+                'http_path' => "/city_hot_addresses",
+            ],
         ];
 
     /*自定义添加的菜单*/
@@ -71,6 +77,13 @@ class AdminTablesSeeder extends Seeder
                 'title' => '订单管理',
                 'icon' => 'fa-list',
                 'uri' => 'orders',
+            ],
+            [
+                'parent_id' => 0,
+                'order' => 11,
+                'title' => '城市热门地点管理',
+                'icon' => 'fa-list',
+                'uri' => 'city_hot_addresses',
             ],
         ];
 

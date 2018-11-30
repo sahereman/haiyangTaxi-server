@@ -50,6 +50,8 @@ $api->version('v1', [
         // 文章展示
         $api->get('articles/{slug}', 'ArticlesController@show')->name('client.articles.show');/*详情*/
 
+        // 城市热门地点
+        $api->get('city_hot_addresses', 'CityHotAddressesController@index')->name('client.city_hot_addresses.index');/*列表*/
 
         /*需要 token 验证的接口*/
         $api->group(['middleware' => 'api.auth'], function ($api) {

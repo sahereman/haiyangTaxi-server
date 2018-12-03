@@ -19,5 +19,12 @@ class UsersSeeder extends Seeder
         $user = \App\Models\User::find(1);
         $user->phone = '18600982820';
         $user->save();
+
+
+        //单独处理第二个用户的数据
+        $user = \App\Models\User::find(1);
+        $user->phone = '17863972036';
+        $user->save();
+        
     }
 }

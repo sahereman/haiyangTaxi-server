@@ -73,7 +73,7 @@ class OrdersSeeder extends Seeder
         //已完成订单
         User::where('phone', '17863972036')->get()->each(function (User $user) use ($driver_ids) {
 
-            $count = random_int(5, 10);
+            $count = random_int(50, 100);
             for ($i = 0; $i < $count; $i++)
             {
                 factory(Order::class)->create([

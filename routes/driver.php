@@ -26,15 +26,21 @@ $api->version('v1', [
         'expires' => config('api.rate_limits.access.expires'),
     ], function ($api) {
         /*游客可以访问的接口*/
-        $api->get('test', 'Controller@test')->name('driver.test');/*测试*/
 
+
+        // 登录
+        $api->post('authorizations', 'AuthorizationsController@store')->name('driver.authorizations.store');/*登录授权token*/
 
         /*需要 token 验证的接口*/
         $api->group(['middleware' => 'api.auth'], function ($api) {
 
-            $api->get('test2', 'Controller@test2')->name('driver.test2');/*测试*/
+            // 首页
+            $api->get('index/stats', 'IndexController@stats')->name('driver.index.stats');/*获取首页统计订单*/
 
-            
+            // 司机
+            $api->get('drivers/me', 'DriversController@me')->name('driver.drivers.me');/*获取司机信息*/
+
+
         });
     });
 

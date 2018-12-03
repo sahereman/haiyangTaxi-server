@@ -54,12 +54,14 @@ class UsersController extends Controller
 
     public function me()
     {
-        return $this->response->item($this->user(), new UserTransformer());
+        $user = Auth::guard('client')->user();
+
+        return $this->response->item($user, new UserTransformer());
     }
 
     public function update(UserRequest $request, ImageUploadHandler $handler)
     {
-        $user = $this->user();
+        $user = Auth::guard('client')->user();
 
         $attributes = $request->only(['avatar']);
 

@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Client;
 use App\Models\Order;
 use App\Transformers\Client\OrderTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrdersController extends Controller
 {
     public function index(Request $request)
     {
-        $builder = $this->user()->orders()->orderBy('created_at', 'desc');
+        $user = Auth::guard('client')->user();
+
+        $builder = $user->orders()->orderBy('created_at', 'desc');
 
         switch ($request->input('status'))
         {

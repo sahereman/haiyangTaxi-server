@@ -3,8 +3,12 @@
 - 项目代号：haiyangTaxi
 - 域名：`taxi.shangheweiman.com`
 --- 
-- 海阳出租车呼叫平台-客户端-小程序端 接口文档
+- 海阳出租车呼叫平台-客户端 接口文档
 - https://www.showdoc.cc/205049058306998
+- 访问密码: 9800
+--- 
+- 海阳出租车呼叫平台-司机端 接口文档
+- https://www.showdoc.cc/216783118963000
 - 访问密码: 9800
 
 ## 项目部署
@@ -43,7 +47,7 @@ database\seeds\ConfigsSeeder.php 中修改后
 php artisan db:seed --class=ConfigsSeeder
 ```
 ##### 服务器后台运行的服务: 生产环境进程管理工具 Supervisor 
-- `php artisan horizon`
+- `php ./artisan horizon`
 - ```
   ./vendor/bin/fswatch ./app >> /dev/null 2>&1
   
@@ -51,7 +55,6 @@ php artisan db:seed --class=ConfigsSeeder
   
   php artisan laravels start  help: {start|stop|restart|reload|publish}
   ```
-
 
 ## 常用 artisan 命令
 ```

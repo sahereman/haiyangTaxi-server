@@ -40,6 +40,8 @@ $api->version('v1', [
             // 司机
             $api->get('drivers/me', 'DriversController@me')->name('driver.drivers.me');/*获取司机信息*/
 
+            // 订单
+            $api->get('orders', 'OrdersController@index')->name('driver.orders.index');/*获取订单列表*/
 
         });
     });

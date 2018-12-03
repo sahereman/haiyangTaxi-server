@@ -78,9 +78,8 @@ class DriversController extends Controller
      */
     protected function grid()
     {
-        DB::connection()->enableQueryLog();
         $grid = new Grid(new Driver());
-        $grid->model()->orderBy('id', 'desc'); // 设置初始排序条件
+        $grid->model()->orderBy('last_active_at', 'desc'); // 设置初始排序条件
 
         /*筛选*/
         $grid->filter(function ($filter) {

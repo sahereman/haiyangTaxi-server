@@ -35,4 +35,6 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'tencentMapKey' => env('TENCENT_MAP_KEY'),
+
 ];

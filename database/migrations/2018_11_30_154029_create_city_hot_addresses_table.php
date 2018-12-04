@@ -16,6 +16,7 @@ class CreateCityHotAddressesTable extends Migration
             $table->increments('id');
 
             $table->string('city')->nullable()->comment('城市名');
+            $table->string('address_component')->nullable()->comment('地址描述');
             $table->string('address')->nullable()->comment('地址名');
             $table->string('location')->nullable()->comment('地址lat & lng');
 

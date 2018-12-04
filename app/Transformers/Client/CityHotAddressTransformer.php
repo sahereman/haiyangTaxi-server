@@ -13,6 +13,7 @@ class CityHotAddressTransformer extends TransformerAbstract
             'city' => $address->city,
             'address' => $address->address,
             'location' => $address->location,
+            'address_component' => $address->address_component,
         ];
     }
 }

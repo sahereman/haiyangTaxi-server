@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Handlers\TencentMapHandler;
 use App\Models\CityHotAddress;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
@@ -107,6 +108,7 @@ class CityHotAddressesController extends Controller
 
         $show->id('ID');
         $show->city('城市');
+        $show->address_component('地址描述');
         $show->address('乘客常去目的地');
         $show->location('目的地坐标')->as(function ($location) {
             return 'Lat : ' . $location['lat'] . ' Lng : ' . $location['lng'];
@@ -134,9 +136,12 @@ class CityHotAddressesController extends Controller
 
         //保存前回调
         $form->saving(function (Form $form) {
-
             $form->model()->location = ['lat' => $form->input('location.lat'), 'lng' => $form->input('location.lng')];
 
+
+            $map = new TencentMapHandler();
+            $address_component = json_decode($map->reverseGeocoder($form->input('location.lat'), $form->input('location.lng')), true);
+            $form->model()->address_component = isset($address_component['result']['address']) ? $address_component['result']['address'] : '';
         });
 
 

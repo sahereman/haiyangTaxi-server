@@ -10,6 +10,7 @@
         "dingo/api": "2.0.0-alpha2",
         "encore/laravel-admin": "^1.6",
         "fideloper/proxy": "~3.3",
+        "guzzlehttp/guzzle": "^6.3",
         "hhxsv5/laravel-s": "~3.0",
         "intervention/image": "^2.4",
         "laravel-admin-ext/log-viewer": "^1.0",

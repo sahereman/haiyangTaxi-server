@@ -3,6 +3,7 @@
 namespace App\Sockets;
 
 use App\Handlers\SocketJsonHandler;
+use App\Handlers\TencentMapHandler;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -15,12 +16,14 @@ class ClientWebSocket extends WebSocket
 {
 
     /**
-     * 客户端可用的action列表
+     * 客户端主动的action列表
      * @var array
      */
     private $actions = [
         'publish',     // 发起打车订单寻找车辆
-        'withdraw',    // 取消打开
+        'withdraw',    // 取消打车
+        'meet',        // 司机已接单正在来的路上
+        'meetRefresh', // 刷新司机正在来的位置
         'close',       // 关闭连接
     ];
 
@@ -124,24 +127,29 @@ class ClientWebSocket extends WebSocket
 
 
             // 加入 order 集合
-            //            $redis->hset($this->order_set, $uuid, json_encode([
-            //                'user_id' => $userId,
-            //                'from_address' => $data['data']['from_address'],
-            //                'from_location' => ['lat' => $data['data']['from_location']['lat'], 'lng' => $data['data']['from_location']['lng']],
-            //                'to_address' => $data['data']['to_address'],
-            //                'to_location' => ['lat' => $data['data']['to_location']['lat'], 'lng' => $data['data']['to_location']['lng']],
-            //                'create_at' => now()->toDateTimeString(),
-            //            ]));
+            $redis->hset($this->order_set, $uuid, json_encode([
+                'user_id' => $userId,
+                'from_address' => $data['data']['from_address'],
+                'from_location' => ['lat' => $data['data']['from_location']['lat'], 'lng' => $data['data']['from_location']['lng']],
+                'to_address' => $data['data']['to_address'],
+                'to_location' => ['lat' => $data['data']['to_location']['lat'], 'lng' => $data['data']['to_location']['lng']],
+                'create_at' => now()->toDateTimeString(),
+            ]));
 
             // 通知车辆
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
 
-            foreach ($active_drivers as $driver)
+            $driver_locations = array();
+
+            foreach ($active_drivers as $key => $driver)
             {
-                $driver = json_decode($driver, true);
-                $server->push($driver['fd'], json_encode([
-                    'action' => 'notify',
-                    'order_key' => $uuid
+                $active_drivers[$key] = json_decode($driver, true);
+                $driver_locations[] = ['lat' => $active_drivers[$key]['lat'], 'lng' => $active_drivers[$key]['lng']];
+
+                $server->push($active_drivers[$key]['fd'], new SocketJsonHandler(200, 'OK', 'notify', [
+                    'order_key' => $uuid,
+                    'from_address' => $data['data']['from_address'],
+                    'distance' => 2000, //距离单位(米)
                 ]));
             }
 

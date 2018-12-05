@@ -32,7 +32,17 @@ return [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
             ],
-            'handler' => \App\Sockets\TestWebSocket::class,
+            'handler' => \App\Sockets\ClientWebSocket::class,
+        ],
+        [
+            'host' => '0.0.0.0',
+            'port' => 5302,
+            'type' => \SWOOLE_SOCK_TCP,
+            'settings' => [
+                'open_http_protocol' => true,
+                'open_websocket_protocol' => true,
+            ],
+            'handler' => \App\Sockets\DriverWebSocket::class,
         ],
     ],
     'processes' => [
@@ -52,21 +62,6 @@ return [
     ],
     'swoole_tables' => [
         // 场景：WebSocket中UserId与FD绑定
-        'ws' => [// Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
-            'size'   => 102400,//Table的最大行数
-            'column' => [// Table的列定义
-                ['name' => 'value', 'type' => \swoole_table::TYPE_INT, 'size' => 8],
-            ],
-        ],
-
-        'xxs' => [// Key为Table名称，使用时会自动添加Table后缀，避免重名。这里定义名为wsTable的Table
-            'size' => 10240,//Table的最大行数 102400
-            'column' => [// Table的列定义
-                ['name' => 'id', 'type' => \swoole_table::TYPE_INT, 'size' => 8],
-                ['name' => 'name', 'type' => \swoole_table::TYPE_STRING, 'size' => 255],
-                ['name' => 'price', 'type' => \swoole_table::TYPE_FLOAT, 'size' => 8],
-            ],
-        ],
         //...继续定义其他Table
     ],
     'register_providers' => [

@@ -26,6 +26,7 @@ class TestWebSocket extends WebSocket
     {
         info('New WebSocket connection', [$request]);
 
+        \Cache::
 
         $userId = mt_rand(1000, 10000);
 

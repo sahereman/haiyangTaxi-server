@@ -13,6 +13,8 @@ $factory->define(App\Models\DriverEquipment::class, function (Faker $faker) {
 
     return [
         'imei' => $faker->randomNumber(6, true),
+        'name' => $faker->name,
+        'phone' => $faker->phoneNumber,
         'created_at' => $created_at,
         'updated_at' => $updated_at,
     ];

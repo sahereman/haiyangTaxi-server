@@ -19,6 +19,8 @@ class CreateDriverEquipmentsTable extends Migration
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');
 
             $table->string('imei')->unique()->comment('设备IMEI');
+            $table->string('name')->comment('司机');
+            $table->string('phone')->comment('手机号');
 
             $table->timestamps();
         });

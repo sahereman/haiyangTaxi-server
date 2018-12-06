@@ -23,6 +23,8 @@ class CreateOrdersTable extends Migration
 
             $table->string('order_sn')->unique()->comment('订单号');
             $table->string('status')->comment('行程状态')->index();
+            $table->string('trip')->nullable()->comment('进行中订单阶段');
+
 
             $table->string('from_address')->comment('出发地址');
             $table->string('from_location')->comment('出发lat & lng');

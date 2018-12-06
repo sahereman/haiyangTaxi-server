@@ -13,9 +13,12 @@ class AuthorizationsController extends Controller
 
     public function store(AuthorizationRequest $request)
     {
-        $driver = DriverEquipment::where('imei', $request->imei)->first()->driver;
+        $equ = DriverEquipment::where('imei', $request->imei)->first();
+        $driver = $equ->driver;
 
         $driver->update([
+            'name' => $equ->name,
+            'phone' => $equ->phone,
             'last_active_at' => now(),
         ]);
 

@@ -19,6 +19,19 @@ class Order extends Model
         self::ORDER_STATUS_COMPLETED => '已完成',
     ];
 
+
+    // 进行中阶段
+    const ORDER_TRIP_MEET = 'meet';
+    const ORDER_TRIP_SEND = 'send';
+    const ORDER_TRIP_REACH = 'reach';
+
+    public static $orderTripMap = [
+        self::ORDER_TRIP_MEET => '司机已接单正在来的路上',
+        self::ORDER_TRIP_SEND => '已接到乘客正在前往目的地',
+        self::ORDER_TRIP_REACH => '已到达乘客目的地',
+    ];
+
+
     // 订单取消者
     const ORDER_CLOSE_FROM_USER = 'user';
     const ORDER_CLOSE_FROM_DRIVER = 'driver';
@@ -31,8 +44,8 @@ class Order extends Model
     ];
 
     protected $fillable = [
-        'order_sn', 'status', 'from_address', 'from_location', 'to_address', 'to_location', 'close_from',
-        'close_reason', 'closed_at', 'completed_at'
+        'order_sn', 'status', 'trip', 'from_address', 'from_location', 'to_address', 'to_location',
+        'close_from', 'close_reason', 'closed_at', 'completed_at'
 
     ];
 

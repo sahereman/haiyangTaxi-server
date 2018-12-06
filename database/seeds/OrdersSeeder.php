@@ -60,6 +60,7 @@ class OrdersSeeder extends Seeder
             {
                 factory(Order::class)->create([
                     'status' => Order::ORDER_STATUS_TRIPPING,
+                    'trip' => Order::ORDER_TRIP_MEET,
                     'user_id' => $user->id,
                     'driver_id' => array_random($driver_ids),
                 ]);

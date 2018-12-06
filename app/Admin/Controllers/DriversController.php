@@ -89,8 +89,6 @@ class DriversController extends Controller
 
         $grid->id('ID');
         $grid->cart_number('车牌号');
-        $grid->name('联系人');
-        $grid->phone('手机号');
         $grid->orders('今日接单数')->where('created_at', '>', today())->where('created_at', '<', today()->addDay()->subSecond())->display(function ($orders) {
             $count = count($orders);
             return "<span class='label label-success'>{$count}</span>";
@@ -115,8 +113,8 @@ class DriversController extends Controller
         $show->id('ID');
 
         $show->cart_number('车牌号');
-        $show->name('联系人');
-        $show->phone('手机号');
+        $show->name('当前-联系人');
+        $show->phone('当前-手机号');
         $show->remark('备注');
         $show->order_count('总接单数');
         $show->created_at('创建时间');
@@ -133,6 +131,8 @@ class DriversController extends Controller
 
             /*属性*/
             $equ->imei('设备IMEI码');
+            $equ->name('联系人');
+            $equ->phone('手机号');
             $equ->created_at('创建时间');
             $equ->updated_at('更新时间');
         });
@@ -149,14 +149,23 @@ class DriversController extends Controller
         $form = new Form(new Driver());
 
         $form->text('cart_number', '车牌号')->rules('required');
-        $form->text('name', '联系人')->rules('required');
-        $form->text('phone', '手机号')->rules('required');
         $form->textarea('remark', '备注');
         $form->text('order_count', '总接单数')->default(0);
 
         $form->hasMany('equipments', '设备管理', function (Form\NestedForm $form) {
             $form->text('imei', '设备IMEI码')->required();
+            $form->text('name', '联系人')->required();
+            $form->text('phone', '手机号')->required();
         });
+
+        // 定义事件回调，当模型即将保存时会触发这个回调
+        $form->saving(function (Form $form) {
+
+            $form->model()->name = collect($form->input('equipments'))->where(Form::REMOVE_FLAG_NAME, 0)->first()['name']; // 生成默认联系人
+            $form->model()->phone = collect($form->input('equipments'))->where(Form::REMOVE_FLAG_NAME, 0)->first()['phone']; // 生成默认手机号
+
+        });
+
 
         return $form;
     }

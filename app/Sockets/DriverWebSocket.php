@@ -136,11 +136,13 @@ class DriverWebSocket extends WebSocket
 
     public function activeAction($server, $frame, $data, $driverId)
     {
-        // {"action":"active","data":{"lat":"36.092484","lng":"120.380966"}}
-        // {"action":"active","data":{"lat":"36.091102","lng":"120.382556"}}
-        // {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}
-        // {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}
-        // {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}
+        /*
+        {"action":"active","data":{"lat":"36.092484","lng":"120.380966"}}
+        {"action":"active","data":{"lat":"36.091102","lng":"120.382556"}}
+        {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}
+        {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}
+        {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}
+        */
         $validator = Validator::make(array_add($data, 'driver', $driverId), [
             'data' => ['required'],
             'data.lat' => ['required', 'numeric'],

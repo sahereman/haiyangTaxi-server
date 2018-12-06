@@ -52,7 +52,14 @@ class TencentMapHandler
 
         foreach ($to_array as $item)
         {
-            $to_locations .= $item['lat'] . ',' . $item['lng'] . ';';
+            if (end($to_array) == $item)
+            {
+                $to_locations .= $item['lat'] . ',' . $item['lng'];
+
+            } else
+            {
+                $to_locations .= $item['lat'] . ',' . $item['lng'] . ';';
+            }
         }
 
         $response = $client->request('GET', 'https://apis.map.qq.com/ws/distance/v1', [
@@ -61,7 +68,7 @@ class TencentMapHandler
                     'key' => config('services.tencentMapKey'),
                     'mode' => 'driving',
                     'from' => $from['lat'] . ',' . $from['lng'],
-                    'to' => '36.092484,120.380966;36.092484,120.380966',
+                    'to' => $to_locations,
                 ]
         ]);
 
@@ -69,5 +76,43 @@ class TencentMapHandler
         return $response->getBody()->getContents();
     }
 
+    /**
+     * 辅助函数 格式化请求距离运算的ToArray数据格式,数据源:Drivers
+     * @param $drivers
+     * @return array
+     */
+    public function generateCalculateDistanceParam2FromDrivers($drivers)
+    {
+        $array = array();
+
+        foreach ($drivers as $key => $driver)
+        {
+            $array[] = ['lat' => $driver['lat'], 'lng' => $driver['lng']];
+        }
+
+        return $array;
+    }
+
+
+    /**
+     * 辅助函数 扩展Drivers带有距离单位 ,数据源:Drivers , 距离计算Api返回的Content
+     * @param $drivers
+     * @param $calc_res
+     * @return array
+     */
+    public function extendDriversFromMapDistance($drivers, $calc_res)
+    {
+        $calc_array = json_decode($calc_res, true);
+        $drivers_array = array();
+
+        foreach ($drivers as $key => $driver)
+        {
+            $drivers_array[$key] = $driver;
+            $drivers_array[$key]['distance'] = $calc_array['result']['elements'][$key]['distance'];
+            $drivers_array[$key]['duration'] = $calc_array['result']['elements'][$key]['duration'];
+        }
+
+        return $drivers_array;
+    }
 
 }

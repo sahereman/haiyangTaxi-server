@@ -126,32 +126,37 @@ class ClientWebSocket extends WebSocket
 
     public function nearbyAction($server, $frame, $data, $userId)
     {
-        // {"action":"nearby","data":{"lat":"36.111114","lng":"120.444444"}}
-//        $validator = Validator::make($data, [
-//            'data' => ['required'],
-//            'data.lat' => ['required', 'numeric'],
-//            'data.lng' => ['required', 'numeric'],
-//        ]);
-//
-//        if ($validator->fails())
-//        {
-//            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'nearby', $validator->errors()));
-//        } else
-//        {
-//            $redis = app('redis.connection');
-//
-//            $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
-//            $redis->zremrangebyscore($this->driver_active, $driverId, $driverId);
-//            $redis->zadd($this->driver_active, intval($driverId), json_encode([
-//                'id' => $driverId,
-//                'fd' => $frame->fd,
-//                'lat' => $data['data']['lat'],
-//                'lng' => $data['data']['lng'],
-//                'status' => $driverInfo['status'],
-//            ]));
-//
-//            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby'));
-//        }
+        // {"action":"nearby","data":{"lat":"36.092484","lng":"120.380966"}}
+        $validator = Validator::make($data, [
+            'data' => ['required'],
+            'data.lat' => ['required', 'numeric'],
+            'data.lng' => ['required', 'numeric'],
+        ]);
+
+        if ($validator->fails())
+        {
+            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'nearby', $validator->errors()));
+        } else
+        {
+            $redis = app('redis.connection');
+            $map = new TencentMapHandler();
+
+            // 查找车辆
+            $active_drivers = $redis->zrange($this->driver_active, 0, -1);
+            $drivers = formatActiveDrivers($active_drivers);
+            $drivers = findFreeDrivers($drivers);
+
+            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
+            $calc_res = $map->calculateDistance(['lat' => $data['data']['lat'], 'lng' => $data['data']['lng']], $location_array);
+            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
+
+            // 返回最近1000米的车辆
+            $drivers = findDistanceRangeDrivers($drivers, 0, 1000);
+
+            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby', [
+                'drivers' => $drivers
+            ]));
+        }
     }
 
     public function publishAction($server, $frame, $data, $userId)

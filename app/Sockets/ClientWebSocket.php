@@ -40,23 +40,23 @@ class ClientWebSocket extends WebSocket
             'token' => ['required', 'string'],
         ]);
 
-        //        if ($validator->fails())
-        //        {
-        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-        //            $server->close($request->fd);
-        //        }
-        //
-        //        try
-        //        {
-        //            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        //        } catch (\Exception $exception)
-        //        {
-        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-        //            $server->close($request->fd);
-        //        }
+        if ($validator->fails())
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
+
+        try
+        {
+            $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        } catch (\Exception $exception)
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
 
 
-        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+        //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -177,7 +177,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-            //            'user' => ['unique:order_sets,user_id']
+            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);

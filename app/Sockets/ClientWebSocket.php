@@ -40,23 +40,23 @@ class ClientWebSocket extends WebSocket
             'token' => ['required', 'string'],
         ]);
 
-        if ($validator->fails())
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
+        //        if ($validator->fails())
+        //        {
+        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //            $server->close($request->fd);
+        //        }
+        //
+        //        try
+        //        {
+        //            $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        //        } catch (\Exception $exception)
+        //        {
+        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //            $server->close($request->fd);
+        //        }
 
-        try
-        {
-            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        } catch (\Exception $exception)
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
 
-
-        //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -112,6 +112,9 @@ class ClientWebSocket extends WebSocket
                 case 'publish' :
                     $this->publishAction($server, $frame, $data, $userId);
                     break;
+                case 'withdraw' :
+                    $this->withdrawAction($server, $frame, $data, $userId);
+                    break;
                 case 'meetRefresh':
                     $this->meetRefreshAction($server, $frame, $data, $userId);
                     break;
@@ -144,18 +147,11 @@ class ClientWebSocket extends WebSocket
         } else
         {
             $redis = app('redis.connection');
-            $map = new TencentMapHandler();
 
             // 查找车辆
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
             $drivers = formatActiveDrivers($active_drivers);
             $drivers = findFreeDrivers($drivers);
-
-            //            info($drivers);
-            //            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
-            //            $calc_res = $map->calculateDistance(['lat' => $data['data']['lat'], 'lng' => $data['data']['lng']], $location_array);
-            //            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
-            //            $drivers = $map->findDistanceRangeDrivers($drivers, 0, 1000);
 
             $drivers = findNearbyDrivers($drivers, $data['data']['lat'], $data['data']['lng']);
 
@@ -181,7 +177,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-            'user' => ['unique:order_sets,user_id']
+            //            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);
@@ -192,6 +188,7 @@ class ClientWebSocket extends WebSocket
         } else
         {
             $redis = app('redis.connection');
+            $map = new TencentMapHandler();
 
             // 加入 orderSet 订单集合表
             $set = OrderSet::create([
@@ -206,25 +203,66 @@ class ClientWebSocket extends WebSocket
             // 通知车辆
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
 
-            $driver_locations = array();
 
-            foreach ($active_drivers as $key => $driver)
+            $drivers = formatActiveDrivers($active_drivers);
+            $drivers = findFreeDrivers($drivers);
+
+            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
+            $calc_res = $map->calculateDistance($set->from_location, $location_array);
+            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
+            $drivers = $map->findDistanceRangeDrivers($drivers, 0, 2000); // 通知2000米以内的车辆
+
+
+            foreach ($drivers as $driver)
             {
-                $active_drivers[$key] = json_decode($driver, true);
-                $driver_locations[] = ['lat' => $active_drivers[$key]['lat'], 'lng' => $active_drivers[$key]['lng']];
-
-                $server->push($active_drivers[$key]['fd'], new SocketJsonHandler(200, 'OK', 'notify', [
-                    'order_key' => $set->key,
-                    'from_address' => $data['data']['from_address'],
-                    'from_location' => ['lat' => $data['data']['from_location']['lat'], 'lng' => $data['data']['from_location']['lng']],
-                    'distance' => 1800, //距离单位(米)
-                    'duration' => 600,  //时间单位(秒)
-                ]));
+                if (!empty($server->connection_info($driver['fd'])))
+                {
+                    $server->push($driver['fd'], new SocketJsonHandler(200, 'OK', 'notify', [
+                        'order_key' => $set->key,
+                        'from_address' => $set->from_address,
+                        'from_location' => $set->from_location,
+                        'distance' => $driver['distance'], //距离单位(米)
+                        'duration' => $driver['duration'],  //时间单位(秒)
+                    ]));
+                }
             }
 
             /* (用户) 正在寻找车辆中*/
-            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish'));
+            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish', [
+                'order_key' => $set->key,
+                'from_address' => $set->from_address,
+                'from_location' => $set->from_location,
+                'to_address' => $set->to_address,
+                'to_location' => $set->to_location,
+            ]));
         }
+    }
+
+    public function withdrawAction($server, $frame, $data, $userId)
+    {
+        // {"action":"withdraw","data":{"order_key":"eacd945c61fc485c87e4c17eae60d02b"}}
+        $validator = Validator::make($data, [
+            'data' => ['required'],
+            'data.order_key' => ['required',
+                Rule::exists('order_sets', 'key')->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+            ],
+        ]);
+
+        if ($validator->fails())
+        {
+            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'withdraw', $validator->errors()));
+        } else
+        {
+            // orderSet 订单集合表 删除该记录
+            OrderSet::find($data['data']['order_key'])->delete();
+
+
+            /* (用户) 通知用户已取消打车*/
+            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'withdraw'));
+        }
+
     }
 
     public function meetRefreshAction($server, $frame, $data, $userId)

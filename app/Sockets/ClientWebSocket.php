@@ -23,12 +23,12 @@ class ClientWebSocket extends WebSocket
      */
     private $actions = [
         'beat',        // 发送心跳包
-        'nearby',      // 附近车辆位置
+        'nearby',      // 查找附近车辆位置
         'publish',     // 发起打车订单寻找车辆
-        'withdraw',    // 取消打车
-        'meetRefresh', // 刷新司机正在来的位置
+        'withdraw',    // 主动取消打车
+        'meetRefresh', // 刷新车辆正在来的位置
         'userCancel',  // 用户主动取消订单
-        'close',       // 关闭连接
+        'close',       // 主动关闭连接
     ];
 
 
@@ -36,27 +36,27 @@ class ClientWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-        //        $validator = Validator::make($request->get, [
-        //            'token' => ['required', 'string'],
-        //        ]);
-        //
-        //        if ($validator->fails())
-        //        {
-        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
-        //            $server->close($request->fd);
-        //        }
-        //
-        //        try
-        //        {
-        //            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        //        } catch (\Exception $exception)
-        //        {
-        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
-        //            $server->close($request->fd);
-        //        }
+        $validator = Validator::make($request->get, [
+            'token' => ['required', 'string'],
+        ]);
 
-        $user = User::find($request->get['token']);
+        if ($validator->fails())
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
 
+        try
+        {
+            $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        } catch (\Exception $exception)
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
+
+
+        //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -65,6 +65,7 @@ class ClientWebSocket extends WebSocket
         $redis->zadd($this->client_fd, intval($request->fd), $user->id);
         $redis->zadd($this->client_id, intval($user->id), $request->fd);
 
+        /* (用户) Socket连接成功*/
         $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
     }
 
@@ -77,6 +78,9 @@ class ClientWebSocket extends WebSocket
         $redis->zremrangebyscore($this->client_fd, $fd, $fd); // 删除fd关联
         $redis->zremrangebyscore($this->client_id, $userId, $userId); // 删除用户id关联
         OrderSet::where('user_id', $userId)->delete(); // 删除订单集合 该用户的订单
+
+        /* (用户) Socket已断开连接*/
+        $server->push($fd, new SocketJsonHandler(200, 'OK', 'close'));
     }
 
     public function onMessage(\swoole_websocket_server $server, \swoole_websocket_frame $frame)
@@ -99,6 +103,7 @@ class ClientWebSocket extends WebSocket
             switch ($data['action'])
             {
                 case 'beat' :
+                    /* (用户) 心跳包结果*/
                     $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'beat'));
                     break;
                 case 'nearby':
@@ -146,13 +151,15 @@ class ClientWebSocket extends WebSocket
             $drivers = formatActiveDrivers($active_drivers);
             $drivers = findFreeDrivers($drivers);
 
-            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
-            $calc_res = $map->calculateDistance(['lat' => $data['data']['lat'], 'lng' => $data['data']['lng']], $location_array);
-            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
+            //            info($drivers);
+            //            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
+            //            $calc_res = $map->calculateDistance(['lat' => $data['data']['lat'], 'lng' => $data['data']['lng']], $location_array);
+            //            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
+            //            $drivers = $map->findDistanceRangeDrivers($drivers, 0, 1000);
 
-            // 返回最近1000米的车辆
-            $drivers = findDistanceRangeDrivers($drivers, 0, 1000);
+            $drivers = findNearbyDrivers($drivers, $data['data']['lat'], $data['data']['lng']);
 
+            /* (用户) 附近车辆数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby', [
                 'drivers' => $drivers
             ]));
@@ -181,7 +188,7 @@ class ClientWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'location', $validator->errors()));
+            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'publish', $validator->errors()));
         } else
         {
             $redis = app('redis.connection');
@@ -215,6 +222,7 @@ class ClientWebSocket extends WebSocket
                 ]));
             }
 
+            /* (用户) 正在寻找车辆中*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish'));
         }
     }
@@ -242,6 +250,7 @@ class ClientWebSocket extends WebSocket
             $order = Order::find($data['data']['order_id']);
             $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $order->driver_id, $order->driver_id)), true);
 
+            /* (用户) 刷新车辆位置返回的数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'meetRefresh', [
                 'driver' => [
                     'id' => $driverInfo['id'],
@@ -311,7 +320,7 @@ class ClientWebSocket extends WebSocket
                 ],
             ]));
 
-            // 返回结果
+            /* (用户) 主动取消打车成功*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'userCancel'));
         }
     }

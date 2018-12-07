@@ -247,7 +247,7 @@ class DriverWebSocket extends WebSocket
                 'status' => self::DRIVER_STATUS_BUSY,
             ]));
 
-            // 通知用户
+            /* (用户) 车辆已接单正在赶来*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'meet', [
                 'driver' => [
                     'id' => $driver->id,
@@ -335,7 +335,7 @@ class DriverWebSocket extends WebSocket
             $order->closed_at = now();
             $order->save();
 
-            // 通知用户
+            /* (用户) 司机已将订单取消的通知*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'driverCancel', [
                 'order' => [
                     'id' => $order->id,
@@ -390,7 +390,7 @@ class DriverWebSocket extends WebSocket
             $order->trip = Order::ORDER_TRIP_SEND;
             $order->save();
 
-            // 通知用户
+            /* (用户) 已上车,正在前往目的地*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'received', [
                 'order' => [
                     'id' => $order->id,
@@ -469,7 +469,7 @@ class DriverWebSocket extends WebSocket
                 'status' => self::DRIVER_STATUS_FREE,
             ]));
 
-            // 通知用户
+            /* (用户) 已到达目的地,行程结束*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'reach', [
                 'order' => [
                     'id' => $order->id,

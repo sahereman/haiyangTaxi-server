@@ -46,23 +46,34 @@ function findFreeDrivers($drivers)
 }
 
 /**
- * 辅助函数 返回距离范围内的Drivers
+ * 辅助函数 以坐标差距算出附近的车辆
  * @param $drivers
- * @param $startDistance & 起始距离单位(米)
- * @param $endDistance & 结束距离单位(米)
- * @return array'
+ * @param $lat
+ * @param $lng
+ * @param float $location_deviation
+ * @return array
  */
-function findDistanceRangeDrivers($drivers, $startDistance, $endDistance)
+function findNearbyDrivers($drivers, $lat, $lng, $location_deviation = 0.002)
 {
     $driver_array = array();
 
+    $deviation_min_lat = bcsub($lat, $location_deviation, 6);
+    $deviation_max_lat = bcadd($lat, $location_deviation, 6);
+
+    $deviation_min_lng = bcsub($lng, $location_deviation, 6);
+    $deviation_max_lng = bcadd($lng, $location_deviation, 6);
+
     foreach ($drivers as $driver)
     {
-        if ($driver['distance'] >= $startDistance && $driver['distance'] <= $endDistance)
+        if ($driver['lat'] >= $deviation_min_lat && $driver['lat'] <= $deviation_max_lat
+            && $driver['lng'] >= $deviation_min_lng && $driver['lng'] <= $deviation_max_lng)
         {
             $driver_array[] = $driver;
         }
     }
 
     return $driver_array;
+
 }
+
+

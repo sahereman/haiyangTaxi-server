@@ -115,4 +115,26 @@ class TencentMapHandler
         return $drivers_array;
     }
 
+    /**
+     * 辅助函数 返回距离范围内的Drivers
+     * @param $drivers
+     * @param $startDistance & 起始距离单位(米)
+     * @param $endDistance & 结束距离单位(米)
+     * @return array'
+     */
+    function findDistanceRangeDrivers($drivers, $startDistance, $endDistance)
+    {
+        $driver_array = array();
+
+        foreach ($drivers as $driver)
+        {
+            if ($driver['distance'] >= $startDistance && $driver['distance'] <= $endDistance)
+            {
+                $driver_array[] = $driver;
+            }
+        }
+
+        return $driver_array;
+    }
+
 }

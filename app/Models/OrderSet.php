@@ -14,7 +14,7 @@ class OrderSet extends Model
 
     protected $fillable = [
         'user_id', 'from_address', 'from_location',
-        'to_address', 'to_location', 'create_at',
+        'to_address', 'to_location', 'created_at',
     ];
 
     protected $casts = [

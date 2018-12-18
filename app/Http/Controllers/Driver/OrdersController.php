@@ -28,7 +28,7 @@ class OrdersController extends Controller
                 break;
         }
 
-        $orders = $builder->paginate(3)->appends($request->except('page'));
+        $orders = $builder->paginate(5)->appends($request->except('page'));
 
         return $this->response->paginator($orders, new OrderTransformer());
 

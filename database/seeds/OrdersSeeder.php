@@ -19,7 +19,7 @@ class OrdersSeeder extends Seeder
         //已完成订单
         User::whereIn('phone', ['18600982820', '17863972036'])->get()->each(function (User $user) use ($driver_ids) {
 
-            $count = random_int(50, 100);
+            $count = random_int(100, 200);
             for ($i = 0; $i < $count; $i++)
             {
                 factory(Order::class)->create([
@@ -36,7 +36,7 @@ class OrdersSeeder extends Seeder
         //已取消订单
         User::whereIn('phone', ['18600982820', '17863972036'])->get()->each(function (User $user) use ($driver_ids) {
 
-            $count = random_int(2, 3);
+            $count = random_int(10, 20);
             for ($i = 0; $i < $count; $i++)
             {
                 factory(Order::class)->create([

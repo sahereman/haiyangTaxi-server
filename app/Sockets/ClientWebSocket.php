@@ -36,27 +36,27 @@ class ClientWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-        $validator = Validator::make($request->get, [
-            'token' => ['required', 'string'],
-        ]);
+//                $validator = Validator::make($request->get, [
+        //                    'token' => ['required', 'string'],
+        //                ]);
+        //
+        //                if ($validator->fails())
+        //                {
+        //                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //                    $server->close($request->fd);
+        //                }
+        //
+        //                try
+        //                {
+        //                    $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        //                } catch (\Exception $exception)
+        //                {
+        //                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //                    $server->close($request->fd);
+        //                }
 
-        if ($validator->fails())
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
 
-        try
-        {
-            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        } catch (\Exception $exception)
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
-
-
-        //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -206,6 +206,7 @@ class ClientWebSocket extends WebSocket
 
             $drivers = formatActiveDrivers($active_drivers);
             $drivers = findFreeDrivers($drivers);
+
 
             $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
             $calc_res = $map->calculateDistance($set->from_location, $location_array);

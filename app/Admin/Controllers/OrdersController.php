@@ -178,4 +178,12 @@ class OrdersController extends Controller
         return $show;
     }
 
+
+    protected function form()
+    {
+        $form = new Form(new Order());
+
+        return $form;
+    }
+
 }

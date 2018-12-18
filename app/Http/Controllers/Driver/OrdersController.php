@@ -24,7 +24,7 @@ class OrdersController extends Controller
                 $builder->whereBetween('created_at', [today()->subDay(), today()]);
                 break;
             case 'month' :
-                $builder->whereBetween('created_at', [today()->subMonth(), today()]);
+                $builder->whereBetween('created_at', [today()->subMonth(), now()]);
                 break;
         }
 

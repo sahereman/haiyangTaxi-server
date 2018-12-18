@@ -36,27 +36,27 @@ class ClientWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-//                $validator = Validator::make($request->get, [
-        //                    'token' => ['required', 'string'],
-        //                ]);
-        //
-        //                if ($validator->fails())
-        //                {
-        //                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-        //                    $server->close($request->fd);
-        //                }
-        //
-        //                try
-        //                {
-        //                    $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        //                } catch (\Exception $exception)
-        //                {
-        //                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-        //                    $server->close($request->fd);
-        //                }
+        $validator = Validator::make($request->get, [
+            'token' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails())
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
+
+        try
+        {
+            $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        } catch (\Exception $exception)
+        {
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+            $server->close($request->fd);
+        }
 
 
-        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+        //$user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 

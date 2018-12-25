@@ -49,11 +49,11 @@ php artisan db:seed --class=ConfigsSeeder
 ##### 服务器后台运行的服务: 生产环境进程管理工具 Supervisor 
 - `php ./artisan horizon`
 - ```
-  ./vendor/bin/fswatch ./app >> /dev/null 2>&1
+  ./bin/fswatch ./app >> /dev/null 2>&1
   
   or (二选一)
   
-  php artisan laravels start  help: {start|stop|restart|reload|publish}
+  php ./bin/laravels start  help: {start|stop|restart|reload|publish}
   ```
 
 ## 常用 artisan 命令

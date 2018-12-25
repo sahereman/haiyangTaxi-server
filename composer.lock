@@ -1683,16 +1683,16 @@
         },
         {
             "name": "hhxsv5/laravel-s",
-            "version": "v3.0.5",
+            "version": "v3.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hhxsv5/laravel-s.git",
-                "reference": "91e19905868a80579391c86f9fb99248fdee8987"
+                "reference": "b4a4ae0d0bfb7bb447e864678e63c9489abcff5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hhxsv5/laravel-s/zipball/91e19905868a80579391c86f9fb99248fdee8987",
-                "reference": "91e19905868a80579391c86f9fb99248fdee8987",
+                "url": "https://api.github.com/repos/hhxsv5/laravel-s/zipball/b4a4ae0d0bfb7bb447e864678e63c9489abcff5f",
+                "reference": "b4a4ae0d0bfb7bb447e864678e63c9489abcff5f",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1702,7 +1702,9 @@
                 ]
             },
             "require": {
-                "php": ">=5.5.9"
+                "ext-json": "*",
+                "php": ">=5.5.9",
+                "symfony/console": ">=2.7.0"
             },
             "suggest": {
                 "ext-inotify": "Inotify, used to reload all worker processes when your code is modified.",
@@ -1754,7 +1756,7 @@
                 "udp",
                 "websocket"
             ],
-            "time": "2018-10-30T05:58:48+00:00"
+            "time": "2018-12-21T08:34:57+00:00"
         },
         {
             "name": "intervention/image",

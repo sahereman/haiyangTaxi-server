@@ -2,19 +2,23 @@
 
 namespace App\Sockets;
 
+use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
+use App\Handlers\Tools\Coordinate;
 use App\Models\Driver;
 use App\Models\Order;
 use App\Models\OrderSet;
 use App\Models\User;
-use App\Rules\RedisHashExists;
 use App\Rules\RedisZsetExists;
 use App\Rules\RedisZsetUnique;
+use Dingo\Api\Exception\StoreResourceFailedException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class DriverWebSocket extends WebSocket
 {
@@ -142,6 +146,8 @@ class DriverWebSocket extends WebSocket
         {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}
         {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}
         {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}
+        五四广场 :
+        {"action":"active","data":{"lat":"36.062030","lng":"120.384940"}}
         */
         $validator = Validator::make(array_add($data, 'driver', $driverId), [
             'data' => ['required'],
@@ -157,13 +163,14 @@ class DriverWebSocket extends WebSocket
         {
             $redis = app('redis.connection');
 
-            $redis->zadd($this->driver_active, intval($driverId), json_encode([
+            $this->activeUpdate($driverId, [
                 'id' => $driverId,
                 'fd' => $frame->fd,
                 'lat' => $data['data']['lat'],
                 'lng' => $data['data']['lng'],
                 'status' => self::DRIVER_STATUS_FREE,
-            ]));
+                'angle' => random_int(1, 359),
+            ]);
 
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'active'));
         }
@@ -187,19 +194,26 @@ class DriverWebSocket extends WebSocket
             $redis = app('redis.connection');
 
             $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
-            $redis->zremrangebyscore($this->driver_active, $driverId, $driverId);
-            $redis->zadd($this->driver_active, intval($driverId), json_encode([
-                'id' => $driverId,
-                'fd' => $frame->fd,
+            $angle = DriverHandler::calcAngle(new Coordinate($driverInfo['lat'], $driverInfo['lng']), new Coordinate($data['data']['lat'], $data['data']['lng']));
+
+            $this->activeUpdate($driverId, [
                 'lat' => $data['data']['lat'],
                 'lng' => $data['data']['lng'],
-                'status' => $driverInfo['status'],
-            ]));
+                'angle' => $angle == null ? $driverInfo['angle'] : $angle,
+            ]);
 
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'location'));
         }
     }
 
+
+    /**
+     * @param $server
+     * @param $frame
+     * @param $data
+     * @param $driverId
+     * @throws \Throwable
+     */
     public function acceptAction($server, $frame, $data, $driverId)
     {
         // {"action":"accept","data":{"order_key":"98ee23019f0c4a168ee3a626f2b6522e"}}
@@ -215,90 +229,102 @@ class DriverWebSocket extends WebSocket
             $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'accept', $validator->errors()));
         } else
         {
-            $redis = app('redis.connection');
-            $set = OrderSet::find($data['data']['order_key']);
-            $user = $set->user;
-            $driver = Driver::find($driverId);
-            $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
-            $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
+            /*事物*/
+            try
+            {
+                DB::transaction(function () use ($server, $frame, $data, $driverId) {
+                    $redis = app('redis.connection');
+                    $set = OrderSet::lockForUpdate()->find($data['data']['order_key']);
+                    if ($set == false)
+                    {
+                        throw new \Exception();
+                    }
+                    $user = $set->user;
+                    $driver = Driver::find($driverId);
+                    $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
+                    $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
 
-            // 创建订单
-            $order = new Order();
-            $order->user()->associate($user);
-            $order->driver()->associate($driver);
-            $order->status = Order::ORDER_STATUS_TRIPPING;
-            $order->trip = Order::ORDER_TRIP_MEET;
-            $order->from_address = $set->from_address;
-            $order->from_location = $set->from_location;
-            $order->to_address = $set->to_address;
-            $order->to_location = $set->to_location;
-            $order->save();
+                    // 创建订单
+                    $order = new Order();
+                    $order->user()->associate($user);
+                    $order->driver()->associate($driver);
+                    $order->status = Order::ORDER_STATUS_TRIPPING;
+                    $order->trip = Order::ORDER_TRIP_MEET;
+                    $order->from_address = $set->from_address;
+                    $order->from_location = $set->from_location;
+                    $order->to_address = $set->to_address;
+                    $order->to_location = $set->to_location;
+                    $order->save();
 
-            // 删除订单Set
-            $set->delete();
+                    // 删除订单Set
+                    $set->delete();
 
-            // 司机状态设置为忙碌
-            $redis->zremrangebyscore($this->driver_active, $driverId, $driverId);
-            $redis->zadd($this->driver_active, intval($driverId), json_encode([
-                'id' => $driverId,
-                'fd' => $frame->fd,
-                'lat' => $driverInfo['lat'],
-                'lng' => $driverInfo['lng'],
-                'status' => self::DRIVER_STATUS_BUSY,
-            ]));
+                    // 司机状态设置为忙碌
+                    $this->activeUpdate($driverId, [
+                        'status' => self::DRIVER_STATUS_BUSY,
+                    ]);
 
-            /* (用户) 车辆已接单正在赶来*/
-            $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'meet', [
-                'driver' => [
-                    'id' => $driver->id,
-                    'cart_number' => $driver->cart_number,
-                    'phone' => $driver->phone,
-                    'order_count' => $driver->order_count,
-                    'location' => [
-                        'lat' => $driverInfo['lat'],
-                        'lng' => $driverInfo['lng'],
-                    ],
-                    'distance' => 1800, //距离单位(米)
-                    'duration' => 600,  //时间单位(秒)
-                ],
-                'order' => [
-                    'id' => $order->id,
-                    'order_sn' => $order->order_sn,
-                    'user_id' => $order->user_id,
-                    'driver_id' => $order->driver_id,
-                    'status' => $order->status,
-                    'status_text' => Order::$orderStatusMap[$order->status],
-                    'trip' => $order->trip,
-                    'trip_text' => Order::$orderTripMap[$order->trip],
-                    'from_address' => $order->from_address,
-                    'from_location' => $order->from_location,
-                    'to_address' => $order->to_address,
-                    'to_location' => $order->to_location,
-                ],
-            ]));
+                    /* (用户) 车辆已接单正在赶来*/
+                    $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'meet', [
+                        'driver' => [
+                            'id' => $driver->id,
+                            'cart_number' => $driver->cart_number,
+                            'phone' => $driver->phone,
+                            'order_count' => $driver->order_count,
+                            'location' => [
+                                'lat' => $driverInfo['lat'],
+                                'lng' => $driverInfo['lng'],
+                            ],
+                            'distance' => 1800, //距离单位(米)
+                            'duration' => 600,  //时间单位(秒)
+                        ],
+                        'order' => [
+                            'id' => $order->id,
+                            'order_sn' => $order->order_sn,
+                            'user_id' => $order->user_id,
+                            'driver_id' => $order->driver_id,
+                            'status' => $order->status,
+                            'status_text' => Order::$orderStatusMap[$order->status],
+                            'trip' => $order->trip,
+                            'trip_text' => Order::$orderTripMap[$order->trip],
+                            'from_address' => $order->from_address,
+                            'from_location' => $order->from_location,
+                            'to_address' => $order->to_address,
+                            'to_location' => $order->to_location,
+                        ],
+                    ]));
 
 
-            // 返回结果
-            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'accept', [
-                'user' => [
-                    'id' => $user->id,
-                    'phone' => $user->phone,
-                ],
-                'order' => [
-                    'id' => $order->id,
-                    'order_sn' => $order->order_sn,
-                    'user_id' => $order->user_id,
-                    'driver_id' => $order->driver_id,
-                    'status' => $order->status,
-                    'status_text' => Order::$orderStatusMap[$order->status],
-                    'trip' => $order->trip,
-                    'trip_text' => Order::$orderTripMap[$order->trip],
-                    'from_address' => $order->from_address,
-                    'from_location' => $order->from_location,
-                    'to_address' => $order->to_address,
-                    'to_location' => $order->to_location,
-                ]
-            ]));
+                    // 返回结果
+                    $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'accept', [
+                        'user' => [
+                            'id' => $user->id,
+                            'phone' => $user->phone,
+                        ],
+                        'order' => [
+                            'id' => $order->id,
+                            'order_sn' => $order->order_sn,
+                            'user_id' => $order->user_id,
+                            'driver_id' => $order->driver_id,
+                            'status' => $order->status,
+                            'status_text' => Order::$orderStatusMap[$order->status],
+                            'trip' => $order->trip,
+                            'trip_text' => Order::$orderTripMap[$order->trip],
+                            'from_address' => $order->from_address,
+                            'from_location' => $order->from_location,
+                            'to_address' => $order->to_address,
+                            'to_location' => $order->to_location,
+                        ]
+                    ]));
+
+                });
+            } catch (\Exception $e)
+            {
+                $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'accept', [
+                    'data.order_key' => ['订单不存在或被抢单']
+                ]));
+            }
+
         }
 
     }
@@ -334,6 +360,11 @@ class DriverWebSocket extends WebSocket
             $order->close_reason = $data['data']['close_reason'];
             $order->closed_at = now();
             $order->save();
+
+            // 司机状态设置为闲置
+            $this->activeUpdate($driverId, [
+                'status' => self::DRIVER_STATUS_FREE,
+            ]);
 
             /* (用户) 司机已将订单取消的通知*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'driverCancel', [
@@ -459,15 +490,10 @@ class DriverWebSocket extends WebSocket
             $order->trip = Order::ORDER_TRIP_REACH;
             $order->save();
 
-            // 司机状态设置为忙碌
-            $redis->zremrangebyscore($this->driver_active, $driverId, $driverId);
-            $redis->zadd($this->driver_active, intval($driverId), json_encode([
-                'id' => $driverId,
-                'fd' => $frame->fd,
-                'lat' => $driverInfo['lat'],
-                'lng' => $driverInfo['lng'],
+            // 司机状态设置为闲置
+            $this->activeUpdate($driverId, [
                 'status' => self::DRIVER_STATUS_FREE,
-            ]));
+            ]);
 
             /* (用户) 已到达目的地,行程结束*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'reach', [

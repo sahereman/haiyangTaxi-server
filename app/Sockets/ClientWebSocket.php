@@ -2,11 +2,14 @@
 
 namespace App\Sockets;
 
+use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
 use App\Handlers\TencentMapHandler;
+use App\Jobs\DriverNotify;
 use App\Models\Order;
 use App\Models\OrderSet;
 use App\Models\User;
+use Hhxsv5\LaravelS\Swoole\Task\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -36,27 +39,27 @@ class ClientWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-        $validator = Validator::make($request->get, [
-            'token' => ['required', 'string'],
-        ]);
+                $validator = Validator::make($request->get, [
+                    'token' => ['required', 'string'],
+                ]);
 
-        if ($validator->fails())
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
+                if ($validator->fails())
+                {
+                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+                    $server->close($request->fd);
+                }
 
-        try
-        {
-            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-        } catch (\Exception $exception)
-        {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-            $server->close($request->fd);
-        }
+                try
+                {
+                    $user = Auth::guard('client')->setToken($request->get['token'])->user();
+                } catch (\Exception $exception)
+                {
+                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+                    $server->close($request->fd);
+                }
 
 
-        //$user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+//        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -148,12 +151,12 @@ class ClientWebSocket extends WebSocket
         {
             $redis = app('redis.connection');
 
-            // 查找车辆
+            // 查找附近闲置车辆
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
-            $drivers = formatActiveDrivers($active_drivers);
-            $drivers = findFreeDrivers($drivers);
+            $drivers = DriverHandler::getDrivers($active_drivers);
+            $drivers = DriverHandler::findFreeDrivers($drivers);
 
-            $drivers = findNearbyDrivers($drivers, $data['data']['lat'], $data['data']['lng']);
+            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $data['data']['lat'], $data['data']['lng']);
 
             /* (用户) 附近车辆数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby', [
@@ -177,7 +180,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-            'user' => ['unique:order_sets,user_id']
+            //            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);
@@ -188,7 +191,6 @@ class ClientWebSocket extends WebSocket
         } else
         {
             $redis = app('redis.connection');
-            $map = new TencentMapHandler();
 
             // 加入 orderSet 订单集合表
             $set = OrderSet::create([
@@ -202,31 +204,11 @@ class ClientWebSocket extends WebSocket
 
             // 通知车辆
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
+            $drivers = DriverHandler::getDrivers($active_drivers);
+            $drivers = DriverHandler::findFreeDrivers($drivers);
+            $drivers = DriverHandler::driversByCoordinateDifference($drivers, $set->from_location['lat'], $set->from_location['lng']);
+            Task::deliver(new DriverNotify($set->key, $drivers));
 
-
-            $drivers = formatActiveDrivers($active_drivers);
-            $drivers = findFreeDrivers($drivers);
-
-
-            $location_array = $map->generateCalculateDistanceParam2FromDrivers($drivers);
-            $calc_res = $map->calculateDistance($set->from_location, $location_array);
-            $drivers = $map->extendDriversFromMapDistance($drivers, $calc_res);
-            $drivers = $map->findDistanceRangeDrivers($drivers, 0, 2000); // 通知2000米以内的车辆
-
-
-            foreach ($drivers as $driver)
-            {
-                if (!empty($server->connection_info($driver['fd'])))
-                {
-                    $server->push($driver['fd'], new SocketJsonHandler(200, 'OK', 'notify', [
-                        'order_key' => $set->key,
-                        'from_address' => $set->from_address,
-                        'from_location' => $set->from_location,
-                        'distance' => $driver['distance'], //距离单位(米)
-                        'duration' => $driver['duration'],  //时间单位(秒)
-                    ]));
-                }
-            }
 
             /* (用户) 正在寻找车辆中*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish', [
@@ -335,8 +317,12 @@ class ClientWebSocket extends WebSocket
             $order->close_from = Order::ORDER_CLOSE_FROM_USER;
             $order->close_reason = $data['data']['close_reason'];
             $order->closed_at = now();
-
             $order->save();
+
+            // 司机状态设置为闲置
+            $this->activeUpdate($driver->id, [
+                'status' => self::DRIVER_STATUS_FREE,
+            ]);
 
             // 通知司机
             $server->push(intval($driverFd), new SocketJsonHandler(200, 'OK', 'userCancel', [

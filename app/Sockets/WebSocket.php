@@ -45,4 +45,19 @@ class WebSocket extends WebSocketService
 
     }
 
+    protected function activeUpdate($driverId, $data = [])
+    {
+        $redis = app('redis.connection');
+
+        $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
+
+        if (empty($driverInfo))
+        {
+            $driverInfo = [];
+        }
+
+        $redis->zremrangebyscore($this->driver_active, $driverId, $driverId);
+        $redis->zadd($this->driver_active, intval($driverId), json_encode(array_merge($driverInfo, $data)));
+    }
+
 }

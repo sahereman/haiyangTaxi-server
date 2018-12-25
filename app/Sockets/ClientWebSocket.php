@@ -39,27 +39,27 @@ class ClientWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-                $validator = Validator::make($request->get, [
-                    'token' => ['required', 'string'],
-                ]);
+        //        $validator = Validator::make($request->get, [
+        //            'token' => ['required', 'string'],
+        //        ]);
+        //
+        //        if ($validator->fails())
+        //        {
+        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //            $server->close($request->fd);
+        //        }
+        //
+        //        try
+        //        {
+        //            $user = Auth::guard('client')->setToken($request->get['token'])->user();
+        //        } catch (\Exception $exception)
+        //        {
+        //            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
+        //            $server->close($request->fd);
+        //        }
 
-                if ($validator->fails())
-                {
-                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-                    $server->close($request->fd);
-                }
 
-                try
-                {
-                    $user = Auth::guard('client')->setToken($request->get['token'])->user();
-                } catch (\Exception $exception)
-                {
-                    $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
-                    $server->close($request->fd);
-                }
-
-
-//        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
 
@@ -149,6 +149,8 @@ class ClientWebSocket extends WebSocket
             $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'nearby', $validator->errors()));
         } else
         {
+            info('222');
+
             $redis = app('redis.connection');
 
             // 查找附近闲置车辆
@@ -207,7 +209,11 @@ class ClientWebSocket extends WebSocket
             $drivers = DriverHandler::getDrivers($active_drivers);
             $drivers = DriverHandler::findFreeDrivers($drivers);
             $drivers = DriverHandler::driversByCoordinateDifference($drivers, $set->from_location['lat'], $set->from_location['lng']);
-            Task::deliver(new DriverNotify($set->key, $drivers));
+
+            info('11');
+
+
+//            Task::deliver(new DriverNotify($set->key, $drivers));
 
 
             /* (用户) 正在寻找车辆中*/

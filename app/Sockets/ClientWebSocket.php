@@ -180,7 +180,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-            //            'user' => ['unique:order_sets,user_id']
+            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);

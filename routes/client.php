@@ -59,6 +59,7 @@ $api->version('v1', [
             // 用户
             $api->get('users/me', 'UsersController@me')->name('client.users.me');/*获取用户信息*/
             $api->patch('users', 'UsersController@update')->name('client.users.update');/*编辑用户信息*/
+            $api->get('users/to_history', 'UsersController@toHistory')->name('client.users.to_history');/*获取用户目的地历史记录*/
 
             // 订单
             $api->get('orders', 'OrdersController@index')->name('client.orders.index');/*获取订单列表*/

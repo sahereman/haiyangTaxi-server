@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Client;
 
 use App\Handlers\ImageUploadHandler;
 use App\Http\Requests\Client\UserRequest;
+use App\Models\Order;
 use App\Models\User;
 use App\Transformers\Client\UserTransformer;
 use Dingo\Api\Exception\StoreResourceFailedException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -57,6 +59,26 @@ class UsersController extends Controller
         $user = Auth::guard('client')->user();
 
         return $this->response->item($user, new UserTransformer());
+    }
+
+    public function toHistory()
+    {
+        $user = Auth::guard('client')->user();
+
+        $orders = $user->orders()->where('status', Order::ORDER_STATUS_COMPLETED)->orderBy('created_at', 'desc')->limit(10)->get();
+
+        $orders = $orders->groupBy('to_address');
+
+        $history = $orders->transform(function ($item) {
+            $item['history'] = [
+                'address' => $item[0]['to_address'],
+                'lat' => $item[0]['to_location']['lat'],
+                'lng' => $item[0]['to_location']['lng'],
+            ];
+            return $item;
+        })->take(6)->pluck('history');
+
+        return $this->response->array($history->toArray());
     }
 
     public function update(UserRequest $request, ImageUploadHandler $handler)

@@ -39,11 +39,16 @@ class DriverNotify extends Task
         $drivers = DriverHandler::findDistanceRangeDrivers($this->drivers, $this->order_set->from_location['lat']
             , $this->order_set->from_location['lng'], $this->startDistance, $this->endDistance);
 
+        //        info($this->drivers);
+        //
+        //        info($drivers);
+
         foreach ($drivers as $driver)
         {
             //司机只通知一次
             $unset_key = array_search($driver['id'], array_column($this->drivers, 'id'));
             unset($this->drivers[$unset_key]);
+            $this->drivers = array_values($this->drivers);
 
             if (!empty($server->connection_info($driver['fd'])))
             {
@@ -57,9 +62,16 @@ class DriverNotify extends Task
             }
         }
 
+        // 最终通知不再通知车辆
+        if ($this->index == 3)
+        {
+            $this->drivers = array();
+        }
+
+
         if (empty($drivers))
         {
-            // 最终通知不再通知车辆
+            // 大范围通知
             $this->index = 3;
         } else
         {
@@ -77,23 +89,25 @@ class DriverNotify extends Task
                 case 1 :
                     $startDistance = $this->startDistance += 501;
                     $endDistance = $this->endDistance += 500;
-                    //                                        $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
-                    //                                        $driverNotify->delay(3);
-                    //                                        Task::deliver($driverNotify);
-                    sleep(20);
-                    Task::deliver(new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index));
+                    $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
+                    $driverNotify->delay(10);
+                    Task::deliver($driverNotify);
+                    //                    sleep(20);
+                    //                    Task::deliver(new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index));
                     break;
                 case 2 :
                     $startDistance = $this->startDistance += 500;
                     $endDistance = $this->endDistance += 500;
-                    sleep(20);
-                    Task::deliver(new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index));
+                    $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
+                    $driverNotify->delay(10);
+                    Task::deliver($driverNotify);
                     break;
                 case 3:
                     $startDistance = $this->startDistance += 500;
                     $endDistance = 9999;
-                    sleep(20);
-                    Task::deliver(new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index));
+                    $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
+                    $driverNotify->delay(10);
+                    Task::deliver($driverNotify);
                     break;
                 default:
                     break;

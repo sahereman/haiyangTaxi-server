@@ -143,7 +143,7 @@ class DriverWebSocket extends WebSocket
         /*
         {"action":"active","data":{"lat":"36.092484","lng":"120.380966"}}
         {"action":"active","data":{"lat":"36.091102","lng":"120.382556"}}
-        {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}
+        {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}   538m
         {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}
         {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}
         五四广场 :

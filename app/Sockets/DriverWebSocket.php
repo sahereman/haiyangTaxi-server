@@ -68,6 +68,9 @@ class DriverWebSocket extends WebSocket
 
         $redis = app('redis.connection');
 
+        //        info($this->driver_id);
+        //        info($this->driver_fd);
+
 
         $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
         $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
@@ -241,7 +244,6 @@ class DriverWebSocket extends WebSocket
                     }
                     $user = $set->user;
                     $driver = Driver::find($driverId);
-                    $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
                     $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
 
                     // 创建订单
@@ -264,20 +266,19 @@ class DriverWebSocket extends WebSocket
                         'status' => self::DRIVER_STATUS_BUSY,
                     ]);
 
+
                     /* (用户) 车辆已接单正在赶来*/
+                    $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
+                    $distance = DriverHandler::calcDistance(new Coordinate($order->from_location['lat'], $order->from_location['lng']),
+                        new Coordinate($driverInfo['lat'], $driverInfo['lng']));
+
                     $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'meet', [
-                        'driver' => [
-                            'id' => $driver->id,
+                        'driver' => array_merge($driverInfo, [
+                            'distance' => $distance,
                             'cart_number' => $driver->cart_number,
                             'phone' => $driver->phone,
                             'order_count' => $driver->order_count,
-                            'location' => [
-                                'lat' => $driverInfo['lat'],
-                                'lng' => $driverInfo['lng'],
-                            ],
-                            'distance' => 1800, //距离单位(米)
-                            'duration' => 600,  //时间单位(秒)
-                        ],
+                        ]),
                         'order' => [
                             'id' => $order->id,
                             'order_sn' => $order->order_sn,
@@ -482,7 +483,6 @@ class DriverWebSocket extends WebSocket
             $order = Order::find($data['data']['order_id']);
             $user = $order->user;
             $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
-            $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $driverId, $driverId)), true);
 
 
             // 修改状态

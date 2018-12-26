@@ -111,6 +111,11 @@ php artisan config:cache
 DB::connection()->enableQueryLog();
 info(DB::getQueryLog());
 
+//清空Redis数据
+redis-cli
+SELECT 1
+FLUSHDB
+
 ```
 
 ## API接口 设计规范

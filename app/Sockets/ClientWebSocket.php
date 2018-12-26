@@ -5,6 +5,7 @@ namespace App\Sockets;
 use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
 use App\Handlers\TencentMapHandler;
+use App\Handlers\Tools\Coordinate;
 use App\Jobs\DriverNotify;
 use App\Models\Order;
 use App\Models\OrderSet;
@@ -57,8 +58,6 @@ class ClientWebSocket extends WebSocket
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
         }
-
-
         //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');
@@ -209,8 +208,6 @@ class ClientWebSocket extends WebSocket
             $drivers = DriverHandler::findFreeDrivers($drivers);
             $drivers = DriverHandler::driversByCoordinateDifference($drivers, $set->from_location['lat'], $set->from_location['lng']);
 
-            //            info('11');
-
 
             Task::deliver(new DriverNotify($set->key, $drivers));
 
@@ -275,18 +272,15 @@ class ClientWebSocket extends WebSocket
 
             $order = Order::find($data['data']['order_id']);
             $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $order->driver_id, $order->driver_id)), true);
+            $distance = DriverHandler::calcDistance(new Coordinate($order->from_location['lat'], $order->from_location['lng']),
+                new Coordinate($driverInfo['lat'], $driverInfo['lng']));
+
 
             /* (用户) 刷新车辆位置返回的数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'meetRefresh', [
-                'driver' => [
-                    'id' => $driverInfo['id'],
-                    'location' => [
-                        'lat' => $driverInfo['lat'],
-                        'lng' => $driverInfo['lng'],
-                    ],
-                    'distance' => 1800, //距离单位(米)
-                    'duration' => 600,  //时间单位(秒)
-                ]
+                'driver' => array_merge($driverInfo, [
+                    'distance' => $distance,
+                ])
             ]));
         }
 

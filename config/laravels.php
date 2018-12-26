@@ -19,7 +19,7 @@ return [
         'log'           => true,
     ],
     'event_handlers' => [
-        'WorkerStart' => \App\Events\WorkerStartEvent::class,
+//        'WorkerStart' => \App\Events\WorkerStartEvent::class,
     ],
     'websocket'                => [
         'enable' => true,
@@ -78,7 +78,7 @@ return [
         'open_tcp_nodelay'   => true,
         'pid_file'           => storage_path('laravels.pid'),
         'log_file'           => storage_path(sprintf('logs/swoole-%s.log', date('Y-m'))),
-        'log_level'          => 4,
+        'log_level'          => 5,
         'document_root'      => base_path('public'),
         'buffer_output_size' => 2 * 1024 * 1024,
         'socket_buffer_size' => 128 * 1024 * 1024,
@@ -86,8 +86,8 @@ return [
         'reload_async'       => true,
         'max_wait_time'      => 60,
         'enable_reuse_port'  => true,
-        'enable_coroutine'   => false,
-        'http_compression'   => false,
+//        'enable_coroutine'   => false,
+//        'http_compression'   => false,
 
         // 表示每60秒遍历一次，一个连接如果600秒内未向服务器发送任何数据，此连接将被强制关闭
         'heartbeat_idle_time' => 12000,

@@ -137,7 +137,7 @@ class ClientWebSocket extends WebSocket
 
     public function nearbyAction($server, $frame, $data, $userId)
     {
-        // {"action":"nearby","data":{"lat":"36.092484","lng":"120.380966"}}
+        // {"action":"nearby","data":{"lat":"36.088436","lng":"120.379145"}}
         $validator = Validator::make($data, [
             'data' => ['required'],
             'data.lat' => ['required', 'numeric'],
@@ -149,7 +149,6 @@ class ClientWebSocket extends WebSocket
             $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'nearby', $validator->errors()));
         } else
         {
-            info('222');
 
             $redis = app('redis.connection');
 
@@ -210,10 +209,10 @@ class ClientWebSocket extends WebSocket
             $drivers = DriverHandler::findFreeDrivers($drivers);
             $drivers = DriverHandler::driversByCoordinateDifference($drivers, $set->from_location['lat'], $set->from_location['lng']);
 
-            info('11');
+//            info('11');
 
 
-//            Task::deliver(new DriverNotify($set->key, $drivers));
+            Task::deliver(new DriverNotify($set->key, $drivers));
 
 
             /* (用户) 正在寻找车辆中*/

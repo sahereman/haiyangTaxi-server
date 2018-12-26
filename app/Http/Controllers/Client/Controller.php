@@ -22,7 +22,7 @@ class Controller extends BaseController
         //
         //        return $map->reverseGeocoder(36.092484, 120.380966);
 
-        return Uuid::uuid4()->getHex();
-        return '111';
+//        return Uuid::uuid4()->getHex();
+        return '444';
     }
 }

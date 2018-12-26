@@ -3,6 +3,8 @@
 namespace App\Sockets;
 
 use App\Handlers\SocketJsonHandler;
+use App\Models\Driver;
+use App\Models\User;
 use Hhxsv5\LaravelS\Swoole\Socket\WebSocket as WebSocketService;
 use Illuminate\Support\Facades\Cache;
 
@@ -23,11 +25,11 @@ class WebSocket extends WebSocketService
     {
         parent::__construct($port);
 
-        $this->client_fd = Cache::getPrefix() . 'client_fd_keys';
-        $this->client_id = Cache::getPrefix() . 'client_id_keys';
-        $this->driver_fd = Cache::getPrefix() . 'driver_fd_keys';
-        $this->driver_id = Cache::getPrefix() . 'driver_id_keys';
-        $this->driver_active = Cache::getPrefix() . 'driver_active_drivers';
+        $this->client_id = User::$redis_id;
+        $this->client_fd = User::$redis_fd;
+        $this->driver_id = Driver::$redis_id;
+        $this->driver_fd = Driver::$redis_fd;
+        $this->driver_active = Driver::$redis_active;
     }
 
     public function onOpen(\swoole_websocket_server $server, \swoole_http_request $request)

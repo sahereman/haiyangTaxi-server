@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class Driver extends Authenticatable implements JWTSubject
@@ -20,6 +21,10 @@ class Driver extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public static $redis_id;
+    public static $redis_fd;
+    public static $redis_active;
+
     protected $fillable = [
         'cart_number', 'order_count', 'last_active_at'
     ];
@@ -30,6 +35,14 @@ class Driver extends Authenticatable implements JWTSubject
     protected $dates = [
         'last_active_at'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        self::$redis_id = Cache::getPrefix() . 'driver_id_keys';
+        self::$redis_fd = Cache::getPrefix() . 'driver_fd_keys';
+        self::$redis_active = Cache::getPrefix() . 'driver_active_drivers';
+    }
 
 
     public function orders()

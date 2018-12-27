@@ -19,6 +19,7 @@ class CreateCityHotAddressesTable extends Migration
             $table->string('address_component')->nullable()->comment('地址描述');
             $table->string('address')->nullable()->comment('地址名');
             $table->string('location')->nullable()->comment('地址lat & lng');
+            $table->unsignedSmallInteger('sort')->nullable(false)->default(0)->comment('排序值');
 
         });
     }

@@ -11,9 +11,9 @@ $factory->define(Order::class, function (Faker $faker) {
     return [
         'order_sn' => Order::generateOrderSn(),
         'from_address' => $faker->address,
-        'from_location' => ['lat' => $faker->randomFloat(6, 30, 120), 'lng' => $faker->randomFloat(6, 30, 120)],
+        'from_location' => ['lat' => (string)$faker->randomFloat(6, 30, 120), 'lng' => (string)$faker->randomFloat(6, 30, 120)],
         'to_address' => $faker->address,
-        'to_location' => ['lat' => $faker->randomFloat(6, 30, 120), 'lng' => $faker->randomFloat(6, 30, 120)],
+        'to_location' => ['lat' => (string)$faker->randomFloat(6, 30, 120), 'lng' => (string)$faker->randomFloat(6, 30, 120)],
         'created_at' => $created_at,
         'updated_at' => $updated_at,
     ];

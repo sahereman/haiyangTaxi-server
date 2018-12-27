@@ -14,7 +14,7 @@ class CityHotAddress extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'city', 'address_component', 'address', 'location'
+        'city', 'address_component', 'address', 'location', 'sort'
     ];
 
     protected $casts = [

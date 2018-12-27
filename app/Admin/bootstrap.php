@@ -18,6 +18,6 @@
  *
  */
 
-Encore\Admin\Form::forget(['map', 'editor']);
+Encore\Admin\Form::forget(['editor']);
 
 app('view')->prependNamespace('admin', resource_path('views/admin'));

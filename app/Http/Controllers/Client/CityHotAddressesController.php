@@ -18,9 +18,8 @@ class CityHotAddressesController extends Controller
             ]);
         }
 
-        $addresses = CityHotAddress::where('city', $request->input('city'))->get();
+        $addresses = CityHotAddress::where('city', $request->input('city'))->orderBy('sort', 'desc')->get();
 
-
-        return $this->response->item($addresses, new CityHotAddressTransformer());
+        return $this->response->collection($addresses, new CityHotAddressTransformer());
     }
 }

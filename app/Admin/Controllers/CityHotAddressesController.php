@@ -77,7 +77,7 @@ class CityHotAddressesController extends Controller
     protected function grid()
     {
         $grid = new Grid(new CityHotAddress);
-        $grid->model()->orderBy('city', 'desc'); // 设置初始排序条件
+        $grid->model()->orderBy('city', 'desc')->orderBy('sort', 'desc'); // 设置初始排序条件
 
 
         /*筛选*/
@@ -90,9 +90,11 @@ class CityHotAddressesController extends Controller
 
         $grid->city('城市');
         $grid->address('乘客常去目的地');
+        $grid->address_component('地址描述');
         $grid->location('目的地坐标')->display(function ($location) {
             return 'Lat : ' . $location['lat'] . ' Lng : ' . $location['lng'];
         });
+        $grid->sort('排序值')->sortable();
 
         return $grid;
     }
@@ -110,9 +112,12 @@ class CityHotAddressesController extends Controller
         $show->city('城市');
         $show->address_component('地址描述');
         $show->address('乘客常去目的地');
-        $show->location('目的地坐标')->as(function ($location) {
+
+        $show->location('地图')->as(function ($location) {
             return 'Lat : ' . $location['lat'] . ' Lng : ' . $location['lng'];
         });
+        $show->sort('排序值');
+
 
         return $show;
     }
@@ -130,18 +135,20 @@ class CityHotAddressesController extends Controller
         });
 
         $form->text('address', '乘客常去目的地');
-        $form->text('location.lat', '目的地坐标 Lat');
-        $form->text('location.lng', '目的地坐标 Lng');
+        $form->display('address_component', '地址描述');
+        $form->map('location.lat', 'location.lng', '地图坐标拾取');
+        $form->number('sort', '排序值');
 
 
         //保存前回调
         $form->saving(function (Form $form) {
-            $form->model()->location = ['lat' => $form->input('location.lat'), 'lng' => $form->input('location.lng')];
-
-
             $map = new TencentMapHandler();
             $address_component = json_decode($map->reverseGeocoder($form->input('location.lat'), $form->input('location.lng')), true);
             $form->model()->address_component = isset($address_component['result']['address']) ? $address_component['result']['address'] : '';
+            $form->model()->location = [
+                'lat' => isset($address_component['result']['location']) ? (string)$address_component['result']['location']['lat'] : (string)$form->input('location.lat'),
+                'lng' => isset($address_component['result']['location']) ? (string)$address_component['result']['location']['lng'] : (string)$form->input('location.lng'),
+            ];
         });
 
 

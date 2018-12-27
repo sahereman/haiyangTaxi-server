@@ -65,6 +65,7 @@ return [
         //...继续定义其他Table
     ],
     'register_providers' => [
+        \Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     ],
     'swoole' => [
         'daemonize' => env('LARAVELS_DAEMONIZE', false),

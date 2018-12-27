@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Facade;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,10 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        Event::listen('laravels.received_request', function (\Illuminate\Http\Request $req, $app) {
+            Facade::clearResolvedInstance('auth');
+        });
 
 //        Event::listen('laravels.received_request', function (\Illuminate\Http\Request $req, $app) {
 //            $req->query->set('get_key', 'hhxsv5');// 修改querystring

@@ -136,7 +136,10 @@ class CityHotAddressesController extends Controller
 
         $form->text('address', '乘客常去目的地');
         $form->display('address_component', '地址描述');
-        $form->map('location.lat', 'location.lng', '地图坐标拾取');
+        $form->map('location.lat', 'location.lng', '地图坐标拾取')->default([
+            'lat' => 36.091462,
+            'lng' => 120.38183
+        ]);
         $form->number('sort', '排序值');
 
 

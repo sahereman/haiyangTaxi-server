@@ -124,6 +124,7 @@ class ClientWebSocket extends WebSocket
                     $this->userCancelAction($server, $frame, $data, $userId);
                     break;
                 case 'close' :
+                    $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'close'));
                     $server->close($frame->fd);
                     break;
                 default:

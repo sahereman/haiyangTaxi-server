@@ -116,6 +116,7 @@ class DriverWebSocket extends WebSocket
                     $this->activeAction($server, $frame, $data, $driverId);
                     break;
                 case 'close' :
+                    $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'close'));
                     $server->close($frame->fd);
                     break;
                 case 'location' :

@@ -28,6 +28,8 @@ class EventServiceProvider extends ServiceProvider
 
         Event::listen('laravels.received_request', function (\Illuminate\Http\Request $req, $app) {
             Facade::clearResolvedInstance('auth');
+//            Facade::clearResolvedInstance('tymon.jwt.auth');
+//            Facade::clearResolvedInstance('api.auth');
         });
 
 //        Event::listen('laravels.received_request', function (\Illuminate\Http\Request $req, $app) {

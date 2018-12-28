@@ -49,7 +49,7 @@ return [
         //        \App\Processes\TestProcess::class,
     ],
     'timer' => [
-        'enable' => true, // 启用Timer
+        'enable' => false, // 启用Timer
         'jobs' => [ // 注册的定时任务类列表
             // 启用LaravelScheduleJob来执行`php artisan schedule:run`，每分钟一次，替代Linux Crontab
             // \Hhxsv5\LaravelS\Illuminate\LaravelScheduleJob::class,
@@ -65,6 +65,11 @@ return [
         //...继续定义其他Table
     ],
     'register_providers' => [
+        /* 重置中间件 Provider*/
+        \Dingo\Api\Provider\DingoServiceProvider::class,
+        \Dingo\Api\Provider\HttpServiceProvider::class,
+
+        /* 重置 Auth Provider*/
         Illuminate\Auth\AuthServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         \Tymon\JWTAuth\Providers\LaravelServiceProvider::class,

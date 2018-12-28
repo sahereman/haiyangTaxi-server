@@ -65,6 +65,7 @@ return [
         //...继续定义其他Table
     ],
     'register_providers' => [
+        Illuminate\Auth\AuthServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         \Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     ],

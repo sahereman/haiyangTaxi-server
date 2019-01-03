@@ -69,7 +69,7 @@ class DriverWebSocket extends WebSocket
 
         $redis = app('redis.connection');
 
-
+   
         $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
         $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
 

@@ -51,6 +51,7 @@ class DriverWebSocket extends WebSocket
         {
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
+            return false;
         }
 
         try
@@ -69,7 +70,7 @@ class DriverWebSocket extends WebSocket
 
         $redis = app('redis.connection');
 
-   
+
         $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
         $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
 

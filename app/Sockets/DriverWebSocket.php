@@ -60,6 +60,7 @@ class DriverWebSocket extends WebSocket
         {
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
             $server->close($request->fd);
+            return false;
         }
 
 

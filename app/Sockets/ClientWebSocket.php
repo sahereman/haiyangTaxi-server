@@ -57,7 +57,9 @@ class ClientWebSocket extends WebSocket
         {
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
+            return false;
         }
+
         //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
         $redis = app('redis.connection');

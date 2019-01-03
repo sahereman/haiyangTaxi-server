@@ -42,7 +42,7 @@ class DriverWebSocket extends WebSocket
     {
         $request->get = $request->get ?? array();
 
-        /*
+
         $validator = Validator::make($request->get, [
             'token' => ['required', 'string'],
         ]);
@@ -55,15 +55,15 @@ class DriverWebSocket extends WebSocket
 
         try
         {
-            $user = Auth::guard('driver')->setToken($request->get['token'])->user();
+            $driver = Auth::guard('driver')->setToken($request->get['token'])->user();
         } catch (\Exception $exception)
         {
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
             $server->close($request->fd);
         }
-        */
 
-        $driver = Driver::find($request->get['token']);
+
+        //$driver = Driver::find($request->get['token']);
 
 
         $redis = app('redis.connection');

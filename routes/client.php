@@ -44,8 +44,6 @@ $api->version('v1', [
 
         // 登录
         $api->post('authorizations', 'AuthorizationsController@store')->name('client.authorizations.store');/*登录授权token*/
-        $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/
-        $api->delete('authorizations', 'AuthorizationsController@destroy')->name('client.authorizations.destroy');/*删除授权token*/
 
         // 文章展示
         $api->get('articles/{slug}', 'ArticlesController@show')->name('client.articles.show');/*详情*/
@@ -55,6 +53,10 @@ $api->version('v1', [
 
         /*需要 token 验证的接口*/
         $api->group(['middleware' => 'api.auth'], function ($api) {
+
+            //登录
+            $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/
+            $api->delete('authorizations', 'AuthorizationsController@destroy')->name('client.authorizations.destroy');/*删除授权token*/
 
             // 用户
             $api->get('users/me', 'UsersController@me')->name('client.users.me');/*获取用户信息*/

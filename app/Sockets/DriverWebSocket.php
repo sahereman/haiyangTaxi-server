@@ -69,9 +69,6 @@ class DriverWebSocket extends WebSocket
 
         $redis = app('redis.connection');
 
-        //        info($this->driver_id);
-        //        info($this->driver_fd);
-
 
         $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
         $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
@@ -89,6 +86,8 @@ class DriverWebSocket extends WebSocket
         $redis->zremrangebyscore($this->driver_fd, $fd, $fd); // 删除fd关联
         $redis->zremrangebyscore($this->driver_id, $driverId, $driverId); // 删除司机id关联
         $redis->zremrangebyscore($this->driver_active, $driverId, $driverId); // 上班的所有司机中 车辆信息
+
+        $server->push($fd, new SocketJsonHandler(200, 'OK', 'close'));
     }
 
     public function onMessage(\swoole_websocket_server $server, \swoole_websocket_frame $frame)

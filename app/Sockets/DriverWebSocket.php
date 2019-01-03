@@ -49,7 +49,7 @@ class DriverWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
         }
 
@@ -58,7 +58,7 @@ class DriverWebSocket extends WebSocket
             $driver = Auth::guard('driver')->setToken($request->get['token'])->user();
         } catch (\Exception $exception)
         {
-            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized'));
+            $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
             return false;
         }

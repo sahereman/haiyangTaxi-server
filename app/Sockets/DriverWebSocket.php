@@ -324,6 +324,7 @@ class DriverWebSocket extends WebSocket
                 });
             } catch (\Exception $e)
             {
+                info($e);
                 $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'accept', [
                     'data.order_key' => ['订单不存在或被抢单']
                 ]));

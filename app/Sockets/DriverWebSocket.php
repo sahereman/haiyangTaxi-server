@@ -59,6 +59,7 @@ class DriverWebSocket extends WebSocket
             $driver = Auth::guard('driver')->setToken($request->get['token'])->user();
         } catch (\Exception $exception)
         {
+            info($exception);
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);
             return false;

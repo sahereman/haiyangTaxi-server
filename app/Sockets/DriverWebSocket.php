@@ -54,9 +54,26 @@ class DriverWebSocket extends WebSocket
             return false;
         }
 
+
         try
         {
             $driver = Auth::guard('driver')->setToken($request->get['token'])->user();
+            //$driver = Driver::find($request->get['token']);
+
+
+            $redis = app('redis.connection');
+
+            $driverFd = array_first($redis->zrangebyscore($this->driver_id, $driver->id, $driver->id));
+            if ($driverFd != null)
+            {
+                $server->close($driverFd);
+            }
+
+            $redis->zremrangebyscore($this->driver_id, $driver->id, $driver->id); // 删除司机id关联
+            $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
+            $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
+
+            $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
         } catch (\Exception $exception)
         {
             info($exception);
@@ -66,17 +83,6 @@ class DriverWebSocket extends WebSocket
         }
 
 
-        //$driver = Driver::find($request->get['token']);
-
-
-        $redis = app('redis.connection');
-
-
-        $redis->zadd($this->driver_fd, intval($request->fd), $driver->id);
-        $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
-
-
-        $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
     }
 
     public function onClose(\swoole_websocket_server $server, $fd, $reactorId)

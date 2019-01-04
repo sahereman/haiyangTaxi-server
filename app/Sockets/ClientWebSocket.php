@@ -54,6 +54,22 @@ class ClientWebSocket extends WebSocket
         try
         {
             $user = Auth::guard('client')->setToken($request->get['token'])->user();
+            //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+
+            $redis = app('redis.connection');
+
+            $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
+            if ($userFd != null)
+            {
+                $server->close($userFd);
+            }
+
+            $redis->zremrangebyscore($this->client_id, $user->id, $user->id); // 删除用户id关联
+            $redis->zadd($this->client_fd, intval($request->fd), $user->id);
+            $redis->zadd($this->client_id, intval($user->id), $request->fd);
+
+            /* (用户) Socket连接成功*/
+            $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
         } catch (\Exception $exception)
         {
             info($exception);
@@ -62,17 +78,6 @@ class ClientWebSocket extends WebSocket
             return false;
         }
 
-        //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
-
-        $redis = app('redis.connection');
-
-
-        $redis->zremrangebyscore($this->client_id, $user->id, $user->id); // 删除用户id关联
-        $redis->zadd($this->client_fd, intval($request->fd), $user->id);
-        $redis->zadd($this->client_id, intval($user->id), $request->fd);
-
-        /* (用户) Socket连接成功*/
-        $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
     }
 
     public function onClose(\swoole_websocket_server $server, $fd, $reactorId)

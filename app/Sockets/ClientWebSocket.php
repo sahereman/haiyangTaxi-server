@@ -58,6 +58,7 @@ class ClientWebSocket extends WebSocket
 
             $redis = app('redis.connection');
 
+            info($user);
             $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
             if ($userFd != null)
             {

@@ -63,6 +63,7 @@ class DriverWebSocket extends WebSocket
 
             $redis = app('redis.connection');
 
+            info($driver);
             $driverFd = array_first($redis->zrangebyscore($this->driver_id, $driver->id, $driver->id));
             if ($driverFd != null)
             {

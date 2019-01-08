@@ -6,7 +6,7 @@
 return [
     'listen_ip' => env('LARAVELS_LISTEN_IP', '127.0.0.1'),
     'listen_port' => env('LARAVELS_LISTEN_PORT', 5200),
-    'socket_type' => env('LARAVELS_SOCKET_TYPE', defined('SWOOLE_SOCK_TCP') ? \SWOOLE_SOCK_TCP : 1),
+    'socket_type' => env('LARAVELS_SOCKET_TYPE', defined('SWOOLE_SOCK_TCP') ? \SWOOLE_SOCK_TCP | \SWOOLE_SSL: 1),
     'enable_gzip' => env('LARAVELS_ENABLE_GZIP', false),
     'enable_coroutine' => false,
     'server' => env('LARAVELS_SERVER', 'LaravelS'),
@@ -27,20 +27,24 @@ return [
         [
             'host' => '0.0.0.0',
             'port' => 5301,
-            'type' => \SWOOLE_SOCK_TCP,
+            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
+                'ssl_cert_file' => env('SSL_CERT_FILE', null),
+                'ssl_key_file' => env('SSL_KEY_FILE', null),
             ],
             'handler' => \App\Sockets\ClientWebSocket::class,
         ],
         [
             'host' => '0.0.0.0',
             'port' => 5302,
-            'type' => \SWOOLE_SOCK_TCP,
+            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
+                'ssl_cert_file' => env('SSL_CERT_FILE', null),
+                'ssl_key_file' => env('SSL_KEY_FILE', null),
             ],
             'handler' => \App\Sockets\DriverWebSocket::class,
         ],
@@ -73,6 +77,8 @@ return [
         Illuminate\Auth\AuthServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         \Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+
+
     ],
     'swoole' => [
         'daemonize' => env('LARAVELS_DAEMONIZE', false),
@@ -96,6 +102,9 @@ return [
         'reload_async' => true,
         'max_wait_time' => 60,
         'enable_reuse_port' => true,
+        'enable_coroutine' => false,
+        'ssl_cert_file' => env('SSL_CERT_FILE', null),
+        'ssl_key_file' => env('SSL_KEY_FILE', null),
 
         // 表示每60秒遍历一次，一个连接如果600秒内未向服务器发送任何数据，此连接将被强制关闭
         'heartbeat_idle_time' => 12000,

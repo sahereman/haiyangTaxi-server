@@ -8,17 +8,14 @@ use App\Handlers\Tools\Coordinate;
 use App\Models\Driver;
 use App\Models\Order;
 use App\Models\OrderSet;
-use App\Models\User;
 use App\Rules\RedisZsetExists;
 use App\Rules\RedisZsetUnique;
-use Dingo\Api\Exception\StoreResourceFailedException;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class DriverWebSocket extends WebSocket
 {
@@ -75,7 +72,16 @@ class DriverWebSocket extends WebSocket
             $redis->zadd($this->driver_id, intval($driver->id), $request->fd);
 
             $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
-        } catch (\Exception $exception)
+        } catch (\ReflectionException $exception)
+        {
+            Log::error('ReflectionException : laravels reload');
+            Artisan::call('laravels', [
+                'action' => 'reload'
+            ]);
+            $server->push($request->fd, new SocketJsonHandler(429, 'Too Many Requests', 'open'));
+            $server->close($request->fd);
+            return false;
+        }  catch (\Exception $exception)
         {
             info($exception);
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));

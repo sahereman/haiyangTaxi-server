@@ -4,19 +4,16 @@ namespace App\Sockets;
 
 use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
-use App\Handlers\TencentMapHandler;
 use App\Handlers\Tools\Coordinate;
 use App\Jobs\DriverNotify;
 use App\Models\Order;
 use App\Models\OrderSet;
-use App\Models\User;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Ramsey\Uuid\Uuid;
 
 class ClientWebSocket extends WebSocket
 {
@@ -54,7 +51,7 @@ class ClientWebSocket extends WebSocket
         try
         {
             $user = Auth::guard('client')->setToken($request->get['token'])->user();
-            //        $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+            //            $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
             $redis = app('redis.connection');
 
@@ -71,6 +68,15 @@ class ClientWebSocket extends WebSocket
 
             /* (用户) Socket连接成功*/
             $server->push($request->fd, new SocketJsonHandler(200, 'OK', 'open'));
+        } catch (\ReflectionException $exception)
+        {
+            Log::error('ReflectionException : laravels reload');
+            Artisan::call('laravels', [
+                'action' => 'reload'
+            ]);
+            $server->push($request->fd, new SocketJsonHandler(429, 'Too Many Requests', 'open'));
+            $server->close($request->fd);
+            return false;
         } catch (\Exception $exception)
         {
             info($exception);

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class DriverWebSocket extends WebSocket
 {
@@ -58,6 +59,10 @@ class DriverWebSocket extends WebSocket
             //$driver = Driver::find($request->get['token']);
 
 
+            if ($driver == null)
+            {
+                throw new TokenInvalidException();
+            }
             $redis = app('redis.connection');
 
             info($driver);

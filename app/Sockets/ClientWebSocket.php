@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ClientWebSocket extends WebSocket
 {
@@ -53,6 +54,11 @@ class ClientWebSocket extends WebSocket
             $user = Auth::guard('client')->setToken($request->get['token'])->user();
             //            $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
 
+
+            if ($user == null)
+            {
+                throw new TokenInvalidException();
+            }
             $redis = app('redis.connection');
 
             info($user);

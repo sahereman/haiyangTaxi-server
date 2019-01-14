@@ -367,7 +367,7 @@ class DriverWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            if (Order::where('order_id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
+            if (Order::where('id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
             {
                 $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'driverCancel'));
             } else

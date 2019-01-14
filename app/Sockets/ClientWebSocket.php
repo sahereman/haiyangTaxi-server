@@ -333,7 +333,7 @@ class ClientWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            if (Order::where('order_id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
+            if (Order::where('id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
             {
                 /* (用户) 主动取消打车成功*/
                 $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'userCancel'));

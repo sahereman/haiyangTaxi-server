@@ -86,7 +86,7 @@ class DriverWebSocket extends WebSocket
             $server->push($request->fd, new SocketJsonHandler(429, 'Too Many Requests', 'open'));
             $server->close($request->fd);
             return false;
-        }  catch (\Exception $exception)
+        } catch (\Exception $exception)
         {
             info($exception);
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
@@ -367,7 +367,13 @@ class DriverWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'driverCancel', $validator->errors()));
+            if (Order::where('order_id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
+            {
+                $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'driverCancel'));
+            } else
+            {
+                $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'driverCancel', $validator->errors()));
+            }
         } else
         {
             $redis = app('redis.connection');
@@ -388,6 +394,10 @@ class DriverWebSocket extends WebSocket
             $this->activeUpdate($driverId, [
                 'status' => self::DRIVER_STATUS_FREE,
             ]);
+
+
+            // 返回结果
+            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'driverCancel'));
 
             /* (用户) 司机已将订单取消的通知*/
             $server->push(intval($userFd), new SocketJsonHandler(200, 'OK', 'driverCancel', [
@@ -410,8 +420,7 @@ class DriverWebSocket extends WebSocket
                 ],
             ]));
 
-            // 返回结果
-            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'driverCancel'));
+
         }
     }
 

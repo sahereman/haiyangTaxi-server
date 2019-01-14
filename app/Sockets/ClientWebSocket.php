@@ -292,9 +292,18 @@ class ClientWebSocket extends WebSocket
         } else
         {
             $redis = app('redis.connection');
-
             $order = Order::find($data['data']['order_id']);
+
             $driverInfo = json_decode(array_first($redis->zrangebyscore($this->driver_active, $order->driver_id, $order->driver_id)), true);
+
+            if (empty($driverInfo))
+            {
+                $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'meetRefresh', [
+                    'data.order_id' => ['司机已下班,请取消订单']
+                ]));
+                return false;
+            }
+
             $distance = DriverHandler::calcDistance(new Coordinate($order->from_location['lat'], $order->from_location['lng']),
                 new Coordinate($driverInfo['lat'], $driverInfo['lng']));
 
@@ -324,7 +333,14 @@ class ClientWebSocket extends WebSocket
 
         if ($validator->fails())
         {
-            $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'userCancel', $validator->errors()));
+            if (Order::where('order_id', $data['data']['order_id'])->where('status', Order::ORDER_STATUS_CLOSED)->first())
+            {
+                /* (用户) 主动取消打车成功*/
+                $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'userCancel'));
+            } else
+            {
+                $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'userCancel', $validator->errors()));
+            }
         } else
         {
             $redis = app('redis.connection');
@@ -345,6 +361,10 @@ class ClientWebSocket extends WebSocket
             $this->activeUpdate($driver->id, [
                 'status' => self::DRIVER_STATUS_FREE,
             ]);
+
+            /* (用户) 主动取消打车成功*/
+            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'userCancel'));
+
 
             // 通知司机
             $server->push(intval($driverFd), new SocketJsonHandler(200, 'OK', 'userCancel', [
@@ -367,8 +387,6 @@ class ClientWebSocket extends WebSocket
                 ],
             ]));
 
-            /* (用户) 主动取消打车成功*/
-            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'userCancel'));
         }
     }
 

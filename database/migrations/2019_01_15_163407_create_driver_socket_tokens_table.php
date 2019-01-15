@@ -14,7 +14,9 @@ class CreateDriverSocketTokensTable extends Migration
     public function up()
     {
         Schema::create('driver_socket_tokens', function (Blueprint $table) {
-            $table->string('token')->primary();
+            $table->increments('id');
+
+            $table->text('token');
 
             $table->unsignedInteger('driver_id');
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');

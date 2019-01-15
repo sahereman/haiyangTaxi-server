@@ -6,12 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class DriverSocketToken extends Model
 {
-    protected $primaryKey = 'token';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
-        'driver_id', 'expired_at'
+        'token', 'driver_id', 'expired_at'
     ];
 
     protected $casts = [

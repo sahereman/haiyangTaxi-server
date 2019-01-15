@@ -14,7 +14,9 @@ class CreateUserSocketTokensTable extends Migration
     public function up()
     {
         Schema::create('user_socket_tokens', function (Blueprint $table) {
-            $table->string('token')->primary();
+            $table->increments('id');
+
+            $table->text('token');
 
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

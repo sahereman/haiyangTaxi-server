@@ -8,6 +8,7 @@ use App\Handlers\Tools\Coordinate;
 use App\Jobs\DriverNotify;
 use App\Models\Order;
 use App\Models\OrderSet;
+use App\Models\UserSocketToken;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -51,14 +52,15 @@ class ClientWebSocket extends WebSocket
 
         try
         {
-            $user = Auth::guard('client')->setToken($request->get['token'])->user();
-            //            $user = User::find($request->get['token']); /*开发测试 使用便捷方式登录*/
+            $token = UserSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
 
-
-            if ($user == null)
+            if ($token == null)
             {
                 throw new TokenInvalidException();
             }
+
+            $user = $token->user;
+
             $redis = app('redis.connection');
 
             info($user);

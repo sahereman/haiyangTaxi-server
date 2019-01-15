@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Requests\Client\AuthorizationRequest;
 use App\Models\User;
+use App\Models\UserSocketToken;
 use Dingo\Api\Exception\StoreResourceFailedException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -49,6 +50,15 @@ class AuthorizationsController extends Controller
         Cache::forget($request->verification_key);
 
         $token = Auth::guard('client')->login($user);
+
+        // 加入UserSocketToken表
+        UserSocketToken::where('user_id', $user->id)->delete();
+
+        $user_token = new UserSocketToken();
+        $user_token->token = $token;
+        $user_token->user()->associate($user);
+        $user_token->expired_at = now()->addMinutes(Auth::guard('client')->factory()->getTTL());
+        $user_token->save();
 
         return $this->respondWithToken($token)->setStatusCode(201);
     }

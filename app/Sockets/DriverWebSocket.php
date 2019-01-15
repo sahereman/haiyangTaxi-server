@@ -6,6 +6,7 @@ use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
 use App\Handlers\Tools\Coordinate;
 use App\Models\Driver;
+use App\Models\DriverSocketToken;
 use App\Models\Order;
 use App\Models\OrderSet;
 use App\Rules\RedisZsetExists;
@@ -55,14 +56,14 @@ class DriverWebSocket extends WebSocket
 
         try
         {
-            $driver = Auth::guard('driver')->setToken($request->get['token'])->user();
-            //$driver = Driver::find($request->get['token']);
+            $token = DriverSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
 
-
-            if ($driver == null)
+            if ($token == null)
             {
                 throw new TokenInvalidException();
             }
+
+            $driver = $token->driver;
             $redis = app('redis.connection');
 
             info($driver);

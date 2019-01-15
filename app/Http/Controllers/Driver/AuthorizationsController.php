@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Driver;
 
 use App\Http\Requests\Driver\AuthorizationRequest;
 use App\Models\DriverEquipment;
+use App\Models\DriverSocketToken;
 use Illuminate\Support\Facades\Auth;
 
 class AuthorizationsController extends Controller
@@ -23,6 +24,15 @@ class AuthorizationsController extends Controller
         ]);
 
         $token = Auth::guard('driver')->login($driver);
+
+        // 加入DriverSocketToken表
+        DriverSocketToken::where('driver_id', $driver->id)->delete();
+
+        $driver_token = new DriverSocketToken();
+        $driver_token->token = $token;
+        $driver_token->driver()->associate($driver);
+        $driver_token->expired_at = now()->addMinutes($this->driver_ttl);
+        $driver_token->save();
 
         return $this->respondWithToken($token)->setStatusCode(201);
     }

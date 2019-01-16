@@ -514,10 +514,11 @@ class DriverWebSocket extends WebSocket
 
             $order = Order::find($data['data']['order_id']);
             $user = $order->user;
+            $driver = $order->driver;
             $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
 
             //增加司机总接单数
-            $user->increment('order_count');
+            $driver->increment('order_count');
 
             // 修改状态
             $order->status = Order::ORDER_STATUS_COMPLETED;

@@ -66,9 +66,14 @@
     </div>
 </div>
 </body>
+
 <script type="text/javascript">
-    document.getElementById("small_title_btn").addEventListener('touchend', touch, false);
-    document.getElementById("small_title_btn").addEventListener('click', touch, false);
+    if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+        document.getElementById("small_title_btn").addEventListener('touchend', touch, false);
+    }else {
+        document.getElementById("small_title_btn").addEventListener('click', touch, false);
+    }
+
     var tn = 0;
     function touch(event) {
         var event = event || window.event;
@@ -83,6 +88,7 @@
                     form.action = src;
                     document.getElementsByTagName('body')[0].appendChild(form);
                     form.submit();
+                    tn = 0;
                 }
                 break;
             case "click":
@@ -93,6 +99,7 @@
                     form.action = src;
                     document.getElementsByTagName('body')[0].appendChild(form);
                     form.submit();
+                    tn = 0;
                 }
                 break;
             case "touchmove":

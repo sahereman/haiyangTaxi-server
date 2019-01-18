@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e76e5d0b44236cdc8d53e8f44dc68e93",
+    "content-hash": "38ad820bb53c3b19d2daf1f01330d085",
     "packages": [
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -1683,16 +1683,16 @@
         },
         {
             "name": "hhxsv5/laravel-s",
-            "version": "v3.3.9",
+            "version": "v3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hhxsv5/laravel-s.git",
-                "reference": "2a21c452ced4ed255eadf282b43ba14ff1456af2"
+                "reference": "91e19905868a80579391c86f9fb99248fdee8987"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hhxsv5/laravel-s/zipball/2a21c452ced4ed255eadf282b43ba14ff1456af2",
-                "reference": "2a21c452ced4ed255eadf282b43ba14ff1456af2",
+                "url": "https://api.github.com/repos/hhxsv5/laravel-s/zipball/91e19905868a80579391c86f9fb99248fdee8987",
+                "reference": "91e19905868a80579391c86f9fb99248fdee8987",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1702,9 +1702,7 @@
                 ]
             },
             "require": {
-                "ext-json": "*",
-                "php": ">=5.5.9",
-                "symfony/console": ">=2.7.0"
+                "php": ">=5.5.9"
             },
             "suggest": {
                 "ext-inotify": "Inotify, used to reload all worker processes when your code is modified.",
@@ -1756,7 +1754,7 @@
                 "udp",
                 "websocket"
             ],
-            "time": "2019-01-02T11:41:08+00:00"
+            "time": "2018-10-30T05:58:48+00:00"
         },
         {
             "name": "intervention/image",

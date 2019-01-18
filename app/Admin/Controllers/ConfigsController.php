@@ -45,6 +45,15 @@ class ConfigsController extends Controller
                                 $form->text("$config[code]", $config['name'])->default($config['value']);
                             }
                             break;
+                        case 'number':
+                            if (!empty($config['help']))
+                            {
+                                $form->number("$config[code]", $config['name'])->default($config['value'])->help($config['help']);
+                            } else
+                            {
+                                $form->number("$config[code]", $config['name'])->default($config['value']);
+                            }
+                            break;
                         case 'radio':
                             $option_arr = array_pluck($config['select_range'], 'name', 'value');
                             if (!empty($config['help']))
@@ -67,6 +76,20 @@ class ConfigsController extends Controller
                             {
                                 $image_url = \Storage::disk('public')->url($config['value']);
                                 $form->display("")->setWidth(2)->default("<img width='100%' src='$image_url' />");
+                            }
+                            break;
+                        case 'file':
+                            if (!empty($config['help']))
+                            {
+                                $form->image("$config[code]", $config['name'])->setWidth(4)->help($config['help']);
+                            } else
+                            {
+                                $form->image("$config[code]", $config['name'])->setWidth(4);
+                            }
+                            if (!empty($config['value']))
+                            {
+                                $file = \Storage::disk('public')->url($config['value']);
+                                $form->display("")->default("$file");
                             }
                             break;
                     }
@@ -92,9 +115,15 @@ class ConfigsController extends Controller
             {
                 if ($request->hasFile($key))
                 {
-                    info($configs->where('code', $key)->first());
+                    $config = $configs->where('code', $key)->first();
+                    if ($config->type == 'file')
+                    {
+                        $value = $imageUploadHandler->uploadOriginal($request->file($key), $config->code, strchr($request->file($key)->getClientOriginalName(), '.', true));
+                    } else
+                    {
+                        $value = $imageUploadHandler->uploadOriginal($request->file($key));
+                    }
 
-                    $value = $imageUploadHandler->uploadOriginal($request->file($key));
                 }
                 $config = Config::where('code', $key)->first();
                 $config->value = $value;

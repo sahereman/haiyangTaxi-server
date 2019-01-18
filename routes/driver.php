@@ -32,7 +32,7 @@ $api->version('v1', [
         $api->post('authorizations', 'AuthorizationsController@store')->name('driver.authorizations.store');/*登录授权token*/
 
         /*需要 token 验证的接口*/
-        $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->group(['middleware' => 'auth:driver'], function ($api) {
 
             // 首页
             $api->get('index/stats', 'IndexController@stats')->name('driver.index.stats');/*获取首页统计订单*/

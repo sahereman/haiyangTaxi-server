@@ -52,7 +52,7 @@ $api->version('v1', [
         $api->get('city_hot_addresses', 'CityHotAddressesController@index')->name('client.city_hot_addresses.index');/*列表*/
 
         /*需要 token 验证的接口*/
-        $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->group(['middleware' => 'auth:client'], function ($api) {
 
             //登录
             $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/

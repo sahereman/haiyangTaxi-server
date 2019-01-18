@@ -26,7 +26,7 @@ class Driver extends Authenticatable implements JWTSubject
     public static $redis_active;
 
     protected $fillable = [
-        'cart_number', 'order_count', 'last_active_at'
+        'cart_number', 'name', 'phone', 'remark', 'order_count', 'last_active_at'
     ];
 
     protected $casts = [

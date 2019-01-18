@@ -42,6 +42,12 @@ $api->version('v1', [
         // 用户注册
         $api->post('users', 'UsersController@store')->name('client.users.store');/*注册*/
 
+        // 刷新授权
+        $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/
+
+        //删除授权
+        $api->delete('authorizations', 'AuthorizationsController@destroy')->name('client.authorizations.destroy');/*删除授权token*/
+
         // 登录
         $api->post('authorizations', 'AuthorizationsController@store')->name('client.authorizations.store');/*登录授权token*/
 
@@ -52,11 +58,7 @@ $api->version('v1', [
         $api->get('city_hot_addresses', 'CityHotAddressesController@index')->name('client.city_hot_addresses.index');/*列表*/
 
         /*需要 token 验证的接口*/
-        $api->group(['middleware' => 'auth:client'], function ($api) {
-
-            //登录
-            $api->put('authorizations', 'AuthorizationsController@update')->name('client.authorizations.update');/*刷新授权token*/
-            $api->delete('authorizations', 'AuthorizationsController@destroy')->name('client.authorizations.destroy');/*删除授权token*/
+        $api->group(['middleware' => 'api.auth:client'], function ($api) {
 
             // 用户
             $api->get('users/me', 'UsersController@me')->name('client.users.me');/*获取用户信息*/

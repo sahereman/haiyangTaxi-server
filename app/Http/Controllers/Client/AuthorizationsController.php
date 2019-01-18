@@ -65,16 +65,7 @@ class AuthorizationsController extends Controller
 
     public function update()
     {
-        if (Auth::guard('client')->check())
-        {
-            $user = Auth::guard('client')->user();
-        }
-
         $token = Auth::guard('client')->refresh();
-
-        User::find($user->id)->update([
-            'last_active_at' => now(),
-        ]);
 
         return $this->respondWithToken($token);
     }

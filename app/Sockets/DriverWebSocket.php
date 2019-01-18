@@ -56,14 +56,17 @@ class DriverWebSocket extends WebSocket
 
         try
         {
-            $token = DriverSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
+//            $token = DriverSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
+//
+//            if ($token == null)
+//            {
+//                throw new TokenInvalidException();
+//            }
+//
+//            $driver = $token->driver;
 
-            if ($token == null)
-            {
-                throw new TokenInvalidException();
-            }
-
-            $driver = $token->driver;
+            /*开发调试*/
+            $driver = Driver::find($request->get['token']);
             $redis = app('redis.connection');
 
             info($driver);
@@ -166,11 +169,11 @@ class DriverWebSocket extends WebSocket
     public function activeAction($server, $frame, $data, $driverId)
     {
         /*
-        {"action":"active","data":{"lat":"36.092484","lng":"120.380966"}}
-        {"action":"active","data":{"lat":"36.091102","lng":"120.382556"}}
+        {"action":"active","data":{"lat":"36.094054","lng":"120.402861"}}   2223m
+        {"action":"active","data":{"lat":"36.096135","lng":"120.392904"}}   1505m
         {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}   538m
-        {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}
-        {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}
+        {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}   153m
+        {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}   142m
         五四广场 :
         {"action":"active","data":{"lat":"36.062030","lng":"120.384940"}}
         */

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
+use App\Models\Config;
 use App\Models\OrderSet;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 
@@ -16,12 +17,18 @@ class DriverNotify extends Task
     private $endDistance;
     private $index; //job运行次数
 
-    public function __construct($set_key, $drivers, $startDistance = 0, $endDistance = 500, $index = 0)
+    public function __construct($set_key, $drivers, $startDistance = 0, $endDistance = null, $index = 0)
     {
+        if ($endDistance == null)
+        {
+            $this->endDistance = Config::config('order_notify_1');
+        } else
+        {
+            $this->endDistance = $endDistance;
+        }
         $this->drivers = $drivers;
         $this->order_set = OrderSet::find($set_key);
         $this->startDistance = $startDistance;
-        $this->endDistance = $endDistance;
         $this->index = $index;
     }
 
@@ -39,8 +46,7 @@ class DriverNotify extends Task
         $drivers = DriverHandler::findDistanceRangeDrivers($this->drivers, $this->order_set->from_location['lat']
             , $this->order_set->from_location['lng'], $this->startDistance, $this->endDistance);
 
-        //        info($this->drivers);
-        //
+        //        info([$this->index, $this->startDistance, $this->endDistance]);
         //        info($drivers);
 
         foreach ($drivers as $driver)
@@ -87,26 +93,24 @@ class DriverNotify extends Task
             switch ($this->index)
             {
                 case 1 :
-                    $startDistance = $this->startDistance += 501;
-                    $endDistance = $this->endDistance += 500;
+                    $startDistance = Config::config('order_notify_1');
+                    $endDistance = Config::config('order_notify_2');
                     $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
-                    $driverNotify->delay(10);
+                    $driverNotify->delay(Config::config('order_notify_interval'));
                     Task::deliver($driverNotify);
-                    //                    sleep(20);
-                    //                    Task::deliver(new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index));
                     break;
                 case 2 :
-                    $startDistance = $this->startDistance += 500;
-                    $endDistance = $this->endDistance += 500;
+                    $startDistance = Config::config('order_notify_2');
+                    $endDistance = Config::config('order_notify_3');
                     $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
-                    $driverNotify->delay(10);
+                    $driverNotify->delay(Config::config('order_notify_interval'));
                     Task::deliver($driverNotify);
                     break;
                 case 3:
-                    $startDistance = $this->startDistance += 500;
-                    $endDistance = 9999;
+                    $startDistance = Config::config('order_notify_3');
+                    $endDistance = Config::config('order_notify_4');
                     $driverNotify = new DriverNotify($this->order_set->key, $this->drivers, $startDistance, $endDistance, $this->index);
-                    $driverNotify->delay(10);
+                    $driverNotify->delay(Config::config('order_notify_interval'));
                     Task::deliver($driverNotify);
                     break;
                 default:

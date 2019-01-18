@@ -63,7 +63,7 @@ class DriverHandler
      * @param int $endDistance
      * @return array
      */
-    public static function findDistanceRangeDrivers($drivers, $lat, $lng, $startDistance = 0, $endDistance = 1000)
+    public static function findDistanceRangeDrivers($drivers, $lat, $lng, $startDistance = 0, $endDistance = 1500)
     {
         $driver_array = array();
         $location_coor = new Coordinate($lat, $lng);

@@ -67,6 +67,17 @@ class AuthorizationsController extends Controller
     {
         $token = Auth::guard('client')->refresh();
 
+        $user = Auth::guard('client')->setToken($token)->user();
+
+        // 加入UserSocketToken表
+        UserSocketToken::where('user_id', $user->id)->delete();
+
+        $user_token = new UserSocketToken();
+        $user_token->token = $token;
+        $user_token->user()->associate($user);
+        $user_token->expired_at = now()->addMinutes(Auth::guard('client')->factory()->getTTL());
+        $user_token->save();
+
         return $this->respondWithToken($token);
     }
 

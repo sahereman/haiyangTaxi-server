@@ -27,8 +27,8 @@ return [
         [
             'host' => '0.0.0.0',
             'port' => 5301,
-                        'type' => \SWOOLE_SOCK_TCP,
-//            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
+//                        'type' => \SWOOLE_SOCK_TCP,
+            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
@@ -40,8 +40,8 @@ return [
         [
             'host' => '0.0.0.0',
             'port' => 5302,
-                        'type' => \SWOOLE_SOCK_TCP,
-//            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
+//                        'type' => \SWOOLE_SOCK_TCP,
+            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,

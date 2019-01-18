@@ -56,17 +56,18 @@ class DriverWebSocket extends WebSocket
 
         try
         {
-//            $token = DriverSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
-//
-//            if ($token == null)
-//            {
-//                throw new TokenInvalidException();
-//            }
-//
-//            $driver = $token->driver;
+            $token = DriverSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
+
+            if ($token == null)
+            {
+                throw new TokenInvalidException();
+            }
+
+            $driver = $token->driver;
 
             /*开发调试*/
-            $driver = Driver::find($request->get['token']);
+//            $driver = Driver::find($request->get['token']);
+            
             $redis = app('redis.connection');
 
             info($driver);

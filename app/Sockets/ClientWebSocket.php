@@ -53,17 +53,17 @@ class ClientWebSocket extends WebSocket
 
         try
         {
-//            $token = UserSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
-//
-//            if ($token == null)
-//            {
-//                throw new TokenInvalidException();
-//            }
-//
-//            $user = $token->user;
+            $token = UserSocketToken::where('token', $request->get['token'])->where('expired_at', '>', now())->first();
+
+            if ($token == null)
+            {
+                throw new TokenInvalidException();
+            }
+
+            $user = $token->user;
 
             /*开发调试*/
-            $user = User::find($request->get['token']);
+//            $user = User::find($request->get['token']);
 
             $redis = app('redis.connection');
 

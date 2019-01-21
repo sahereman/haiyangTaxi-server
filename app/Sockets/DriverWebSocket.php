@@ -69,7 +69,6 @@ class DriverWebSocket extends WebSocket
             
             $redis = app('redis.connection');
 
-            info($driver);
             $driverFd = array_first($redis->zrangebyscore($this->driver_id, $driver->id, $driver->id));
             if ($driverFd != null)
             {
@@ -92,6 +91,7 @@ class DriverWebSocket extends WebSocket
             return false;
         } catch (\Exception $exception)
         {
+            info($driver);
             info($exception);
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);

@@ -66,7 +66,6 @@ class ClientWebSocket extends WebSocket
 
             $redis = app('redis.connection');
 
-            info($user);
             $userFd = array_first($redis->zrangebyscore($this->client_id, $user->id, $user->id));
             if ($userFd != null)
             {
@@ -90,6 +89,7 @@ class ClientWebSocket extends WebSocket
             return false;
         } catch (\Exception $exception)
         {
+            info($user);
             info($exception);
             $server->push($request->fd, new SocketJsonHandler(401, 'Unauthorized', 'open'));
             $server->close($request->fd);

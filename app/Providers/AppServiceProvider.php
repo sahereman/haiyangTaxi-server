@@ -41,14 +41,15 @@ class AppServiceProvider extends ServiceProvider
             abort(403, $exception->getMessage());
         });
 
+        //Token已过期,不能再刷新,返回正确的状态码
+        API::error(function (\Tymon\JWTAuth\Exceptions\TokenExpiredException $exception) {
+            abort(401, $exception->getMessage()); //Token has expired and can no longer be refreshed
+        });
+
         //Token无效异常返回正确的状态码
         API::error(function (\Tymon\JWTAuth\Exceptions\TokenInvalidException $exception) {
             abort(401, $exception->getMessage());
         });
 
-        //Token已过期,不能再刷新,返回正确的状态码
-        API::error(function (\Tymon\JWTAuth\Exceptions\TokenExpiredException $exception) {
-            abort(401, $exception->getMessage()); //Token has expired and can no longer be refreshed
-        });
     }
 }

@@ -130,9 +130,7 @@ class CityHotAddressesController extends Controller
     {
         $form = new Form(new CityHotAddress);
 
-        $form->select('city', '城市')->options(CityHotAddress::$cityMap)->rules(function ($form) {
-            return ['required', Rule::exists('city_hot_addresses', 'city')];
-        });
+        $form->select('city', '城市')->options(CityHotAddress::$cityMap);
 
         $form->text('address', '乘客常去目的地');
         $form->display('address_component', '地址描述');

@@ -12,7 +12,6 @@ use App\Models\OrderSet;
 use App\Rules\RedisZsetExists;
 use App\Rules\RedisZsetUnique;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -175,6 +174,7 @@ class DriverWebSocket extends WebSocket
         {"action":"active","data":{"lat":"36.092936","lng":"120.381339"}}   538m
         {"action":"active","data":{"lat":"36.089338","lng":"120.380437"}}   153m
         {"action":"active","data":{"lat":"36.087153","lng":"120.379086"}}   142m
+        {"action":"active","data":{"lat":"36.067540","lng":"120.301830"}}   7334m
         五四广场 :
         {"action":"active","data":{"lat":"36.062030","lng":"120.384940"}}
         */

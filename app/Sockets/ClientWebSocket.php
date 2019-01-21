@@ -6,13 +6,12 @@ use App\Handlers\DriverHandler;
 use App\Handlers\SocketJsonHandler;
 use App\Handlers\Tools\Coordinate;
 use App\Jobs\DriverNotify;
+use App\Models\Config;
 use App\Models\Order;
 use App\Models\OrderSet;
-use App\Models\User;
 use App\Models\UserSocketToken;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -185,7 +184,7 @@ class ClientWebSocket extends WebSocket
             $drivers = DriverHandler::getDrivers($active_drivers);
             $drivers = DriverHandler::findFreeDrivers($drivers);
 
-            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $data['data']['lat'], $data['data']['lng']);
+            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $data['data']['lat'], $data['data']['lng'],0,99999);
 
             /* (用户) 附近车辆数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby', [
@@ -209,7 +208,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-            'user' => ['unique:order_sets,user_id']
+//            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);
@@ -235,7 +234,8 @@ class ClientWebSocket extends WebSocket
             $active_drivers = $redis->zrange($this->driver_active, 0, -1);
             $drivers = DriverHandler::getDrivers($active_drivers);
             $drivers = DriverHandler::findFreeDrivers($drivers);
-            $drivers = DriverHandler::driversByCoordinateDifference($drivers, $set->from_location['lat'], $set->from_location['lng']);
+            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $set->from_location['lat']
+                , $set->from_location['lng'], 0, Config::config('order_notify_4'));
 
 
             Task::deliver(new DriverNotify($set->key, $drivers));

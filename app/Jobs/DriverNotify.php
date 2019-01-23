@@ -46,8 +46,8 @@ class DriverNotify extends Task
         $drivers = DriverHandler::findDistanceRangeDrivers($this->drivers, $this->order_set->from_location['lat']
             , $this->order_set->from_location['lng'], $this->startDistance, $this->endDistance);
 
-        //        info([$this->index, $this->startDistance, $this->endDistance]);
-        //        info($drivers);
+//        info([$this->index, $this->startDistance, $this->endDistance]);
+//        info($drivers);
 
         foreach ($drivers as $driver)
         {
@@ -74,15 +74,16 @@ class DriverNotify extends Task
             $this->drivers = array();
         }
 
+        $this->index++;
 
-        if (empty($drivers))
-        {
-            // 大范围通知
-            $this->index = 3;
-        } else
-        {
-            $this->index++;
-        }
+        //        if (empty($drivers))
+        //        {
+        //            // 大范围通知
+        //            $this->index = 3;
+        //        } else
+        //        {
+        //            $this->index++;
+        //        }
     }
 
     // 可选的，完成事件，任务处理完后的逻辑，运行在Worker进程中，可以投递任务

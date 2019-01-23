@@ -9,6 +9,7 @@ use App\Jobs\DriverNotify;
 use App\Models\Config;
 use App\Models\Order;
 use App\Models\OrderSet;
+use App\Models\User;
 use App\Models\UserSocketToken;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 use Illuminate\Support\Facades\Artisan;
@@ -184,7 +185,7 @@ class ClientWebSocket extends WebSocket
             $drivers = DriverHandler::getDrivers($active_drivers);
             $drivers = DriverHandler::findFreeDrivers($drivers);
 
-            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $data['data']['lat'], $data['data']['lng'],0,99999);
+            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $data['data']['lat'], $data['data']['lng'],0,Config::config('order_notify_4'));
 
             /* (用户) 附近车辆数据*/
             $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'nearby', [
@@ -208,7 +209,7 @@ class ClientWebSocket extends WebSocket
             'data.to_address' => ['required'],
             'data.to_location.lat' => ['required', 'numeric'],
             'data.to_location.lng' => ['required', 'numeric'],
-//            'user' => ['unique:order_sets,user_id']
+            'user' => ['unique:order_sets,user_id']
         ], [
             'user.unique' => '已经存在进行中的订单'
         ]);

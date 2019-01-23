@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\UserSocketToken;
 use Hhxsv5\LaravelS\Swoole\Task\Task;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -194,6 +195,13 @@ class ClientWebSocket extends WebSocket
         }
     }
 
+    /**
+     * @param $server
+     * @param $frame
+     * @param $data
+     * @param $userId
+     * @throws \Throwable
+     */
     public function publishAction($server, $frame, $data, $userId)
     {
         /*
@@ -219,37 +227,47 @@ class ClientWebSocket extends WebSocket
             $server->push($frame->fd, new SocketJsonHandler(422, 'Unprocessable Entity', 'publish', $validator->errors()));
         } else
         {
-            $redis = app('redis.connection');
+            /*事物*/
+            try
+            {
+                DB::transaction(function () use ($server, $frame, $data, $userId) {
+                    $redis = app('redis.connection');
 
-            // 加入 orderSet 订单集合表
-            $set = OrderSet::create([
-                'user_id' => $userId,
-                'from_address' => $data['data']['from_address'],
-                'from_location' => ['lat' => $data['data']['from_location']['lat'], 'lng' => $data['data']['from_location']['lng']],
-                'to_address' => $data['data']['to_address'],
-                'to_location' => ['lat' => $data['data']['to_location']['lat'], 'lng' => $data['data']['to_location']['lng']],
-                'created_at' => now(),
-            ]);
+                    // 加入 orderSet 订单集合表
+                    $set = OrderSet::create([
+                        'user_id' => $userId,
+                        'from_address' => $data['data']['from_address'],
+                        'from_location' => ['lat' => $data['data']['from_location']['lat'], 'lng' => $data['data']['from_location']['lng']],
+                        'to_address' => $data['data']['to_address'],
+                        'to_location' => ['lat' => $data['data']['to_location']['lat'], 'lng' => $data['data']['to_location']['lng']],
+                        'created_at' => now(),
+                    ]);
 
-            // 通知车辆
-            $active_drivers = $redis->zrange($this->driver_active, 0, -1);
-            $drivers = DriverHandler::getDrivers($active_drivers);
-            $drivers = DriverHandler::findFreeDrivers($drivers);
-            $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $set->from_location['lat']
-                , $set->from_location['lng'], 0, Config::config('order_notify_4'));
+                    // 通知车辆
+                    $active_drivers = $redis->zrange($this->driver_active, 0, -1);
+                    $drivers = DriverHandler::getDrivers($active_drivers);
+                    $drivers = DriverHandler::findFreeDrivers($drivers);
+                    $drivers = DriverHandler::findDistanceRangeDrivers($drivers, $set->from_location['lat']
+                        , $set->from_location['lng'], 0, Config::config('order_notify_4'));
 
+                    // 订单通知
+                    Task::deliver(new DriverNotify($set->key, $drivers));
 
-            Task::deliver(new DriverNotify($set->key, $drivers));
+                    /* (用户) 正在寻找车辆中*/
+                    $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish', [
+                        'order_key' => $set->key,
+                        'from_address' => $set->from_address,
+                        'from_location' => $set->from_location,
+                        'to_address' => $set->to_address,
+                        'to_location' => $set->to_location,
+                    ]));
 
-
-            /* (用户) 正在寻找车辆中*/
-            $server->push($frame->fd, new SocketJsonHandler(200, 'OK', 'publish', [
-                'order_key' => $set->key,
-                'from_address' => $set->from_address,
-                'from_location' => $set->from_location,
-                'to_address' => $set->to_address,
-                'to_location' => $set->to_location,
-            ]));
+                });
+            } catch (\Exception $e)
+            {
+                Log::error($e);
+                $server->push($frame->fd, new SocketJsonHandler(429, 'Too Many Requests', 'publish'));
+            }
         }
     }
 

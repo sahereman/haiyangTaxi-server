@@ -21,16 +21,7 @@ Route::get('/', function () {
 });
 
 
-
-Route::get('demo', function () {
-
-    if(isMobile())
-    {
-        return "<center><h1>请使用电脑访问</h1></center>";
-    }
-
-    return view('demo');
-});
+Route::get('demo', 'Controller@demo');
 
 
 Route::get('demo/{img}', 'Controller@img')->name('img');

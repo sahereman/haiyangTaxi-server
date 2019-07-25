@@ -12,12 +12,24 @@
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 
 </head>
 
 <body>
 
-<div class="container">
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+
+            var a = $('#opop').html("<center><h1>请使用电脑访问</h1></center>");
+        }
+    });
+
+</script>
+
+<div class="container" id="opop">
     <h1 style="text-align: center;">{{\App\Models\Config::config('title')}}</h1>
     <hr>
 

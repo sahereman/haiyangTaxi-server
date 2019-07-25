@@ -27,8 +27,8 @@ return [
         [
             'host' => '0.0.0.0',
             'port' => 5301,
-//                        'type' => \SWOOLE_SOCK_TCP,
-            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
+                        'type' => \SWOOLE_SOCK_TCP,
+//            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
@@ -40,8 +40,8 @@ return [
         [
             'host' => '0.0.0.0',
             'port' => 5302,
-//                        'type' => \SWOOLE_SOCK_TCP,
-            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
+                        'type' => \SWOOLE_SOCK_TCP,
+//            'type' => \SWOOLE_SOCK_TCP | \SWOOLE_SSL,
             'settings' => [
                 'open_http_protocol' => true,
                 'open_websocket_protocol' => true,
@@ -92,7 +92,7 @@ return [
         'task_max_request' => 5000,
         'task_tmpdir' => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'message_queue_key' => ftok(base_path('public/index.php'), 1),
-        'max_request' => 3000,
+        'max_request' => 13000,
         'open_tcp_nodelay' => true,
         'pid_file' => storage_path('laravels.pid'),
         'log_file' => storage_path(sprintf('logs/swoole-%s.log', date('Y-m'))),
@@ -100,7 +100,7 @@ return [
         'document_root' => base_path('public'),
         'buffer_output_size' => 16 * 1024 * 1024,
         'socket_buffer_size' => 128 * 1024 * 1024,
-        'package_max_length' => 4 * 1024 * 1024,
+        'package_max_length' => 16 * 1024 * 1024,
         'reload_async' => true,
         'max_wait_time' => 60,
         'enable_reuse_port' => true,

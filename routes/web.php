@@ -20,3 +20,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+
+Route::get('demo', function () {
+    return view('demo');
+});
+
+
+Route::get('demo/{img}', 'Controller@img')->name('img');
+

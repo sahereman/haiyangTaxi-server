@@ -39,6 +39,10 @@ Route::group([
     /*城市热门地点*/
     $router->resource('city_hot_addresses', CityHotAddressesController::class)->names('admin.city_hot_addresses');
 
+
+    $router->resource('cat', catController::class);
+    $router->resource('img', imgController::class);
+
     //    $router->resource('example', ExampleController::class)->names('admin.example');
     //    $router->get('example', 'ExampleController@index')->name('admin.example.index');
     //    $router->get('example/create', 'ExampleController@create')->name('admin.example.create');

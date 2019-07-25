@@ -85,6 +85,34 @@ class AdminTablesSeeder extends Seeder
                 'icon' => 'fa-list',
                 'uri' => 'city_hot_addresses',
             ],
+
+
+            [
+                'parent_id' => 0,
+                'order' => 11,
+                'title' => '设计图DEMO',
+                'icon' => 'fa-list',
+                'uri' => '',
+            ],
+
+
+            [
+                'parent_id' => 19,
+                'order' => 11,
+                'title' => '类',
+                'icon' => 'fa-list',
+                'uri' => 'cat',
+            ],
+
+            [
+                'parent_id' => 19,
+                'order' => 11,
+                'title' => '图',
+                'icon' => 'fa-list',
+                'uri' => 'img',
+            ],
+
+
         ];
 
     /**
